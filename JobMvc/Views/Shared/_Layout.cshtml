@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title - CDP</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Scripts/DataTables/datatables.min.css" />
+    <script src="~/Scripts/DataTables/jQuery-2.2.4/jquery-2.2.4.min.js"></script>
+    <script src="~/Scripts/DataTables/datatables.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootbox.js"></script>
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/sidebar.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        function toggleMenu() {
+            $("#wrapper").toggleClass("toggled");
+        };
+    </script>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="btn btn-primary" onclick="toggleMenu()">CDP</button>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar">
+                    </span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="~/CustomsFile/Country">Country</a></li>
+                    <li><a href="~/CustomsFile/InterPort">Port</a></li>
+                    <li><a href="~/CustomsFile/Currency">Currency</a></li>                    
+                    <li><a href="~/CustomsFile/ExchangeRate">Exchange Rate</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        Master File
+                    </a>
+                </li>
+                <li><a href="~/CustomsFile/Country">Country</a></li>
+                <li><a href="~/CustomsFile/InterPort">Port</a></li>
+                <li><a href="~/CustomsFile/Currency">Currency</a></li>
+                <li><a href="~/CustomsFile/ExchangeRate">Exchange Rate</a></li>
+             </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container container-fluid body-content">
+                @RenderBody()
+                <hr />
+                <footer>
+                    <p>&copy; @DateTime.Now.Year - BIT Solution and consultant co.,ltd</p>
+                </footer>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+
+</body>
+</html>

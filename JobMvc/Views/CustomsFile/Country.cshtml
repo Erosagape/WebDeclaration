@@ -1,0 +1,183 @@
+﻿@{
+    ViewBag.Header = "ข้อมูลประเทศ";
+}
+    <script type="text/javascript">
+        //กำหนดตัวแปรเก็บ path ของ web service ไว้ call ใน page นี้
+        var path='@Url.Content("~")';
+        var urlSource = path+ 'CustomsFile/getCountry';
+        var urlSave = path+ 'CustomsFile/setCountry';
+        //Event ตอนเปิดเพจมาให้ load grid เลย
+        $(document).ready(function () {
+            showGrid();
+        });
+        //ฟังก์ชั่นสำหรับ get ข้อมูลจาก web service มาแสดงผลใน table
+        function showGrid() {
+            var rowid = 0;
+            //กำหนดค่า table grid
+            $('#tbl').DataTable({
+                ajax: {
+                    url: urlSource, //web service ที่จะ call ไปดึงข้อมูลมา
+                    dataSrc: ''
+                },
+                selected: true, //ให้สามารถเลือกแถวได้
+                columns: [ //กำหนด property ของ header column
+			        { data: "oid", visible: false },
+                    { data: null, title:"ลำดับที่" },
+			        { data: "countryCode", title: "รหัสประเทศ" },
+			        { data: "countryName", title: "ชื่อประเทศ" },
+                    { data: null ,title:"แก้ไข" },
+                    { data: null ,title:"แสดง" }
+                ],
+                "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
+                    {
+                        "targets": 1, //column ที่ 0 เป็นหมายเลขแถว
+                        "data": null,
+                        "render": function (data, type, full, meta) {
+                            rowid++;
+                            return rowid;
+                        }
+                    },
+                    {
+                        "targets": 4, //column ที่ 5 เพิ่มปุ่ม Edit ในแต่ละแถว ไว้แสดงข้อมูล
+                        "data": null,
+                        "render": function (data, type, full, meta) {
+                            var html = "<button id='btnEdit' class='btn btn-warning'>ID:" + data.oid + "</button>";
+                            return html;
+                        }
+                    },
+                    {
+                        "targets": 5, //column ที่ 6 เพิ่ม Dropdown Menu ไว้แสดงข้อมูลฟอร์ม popup อื่นๆ
+                        "data": null,
+                        "render": function (data, type, full, meta) {
+                            var html = "<select id='selMenu' class='form-control dropdown'>";
+                            html += "<option value='0'>-Go To-</option>";
+                            html += "<option value='1'>Currency</option>";
+                            html += "<option value='2'>Port</option></select>";
+                            return html;
+                        }
+                    },
+                ],
+                destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+            });
+            //เซ็ตค่า Event ให้ เวลาเลือกแถวให้แสดงสีแถวที่ถูกเลือก
+            $('#tbl tbody').on('click', 'tr', function () {
+                $('#tbl tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                $(this).addClass('selected'); //select row ใหม่
+            });
+            //กำหนด Event ให้เวลากดปุ่ม Edit ให้แดสงข้อมูลใน popup form
+            $('#tbl tbody').on('click', '#btnEdit', function () {
+                var dt = getRowData('#tbl', this);
+                loadData(dt);
+            });
+            //กำหนด Event ให้เวลาเลือก Dropdown ให้ทำงานตามที่เลือก select ไว้
+            $('#tbl tbody').on('change', '#selMenu', function () {
+                var dt = getRowData('#tbl', this);
+                var val = $(this).val();
+                switch(val)
+                {
+                    case "1":
+                        location.href = path + 'CustomsFile/Currency?countryCode=' + dt.countryCode;
+                        break;
+                    case "2":
+                        location.href = path + 'CustomsFile/InterPort?countryCode=' + dt.countryCode;
+                        break;
+                }
+            });
+
+        }
+        //ฟังก์ชั่นสำหรับ get ข้อมูลจาก row ปัจจุบัน ที่ user เลือกอยู่
+        function getRowData(tb, e) {
+            var indexRow = $(e).parents('tr');
+            return $(tb).DataTable().row(indexRow).data();
+        }
+        //ฟังก์ชั่นสำหรับเรียก popup ให้แสดงผล หรือซ่อน popup ที่แสดงอยู่
+        function showPopupEditor(caption, action) {
+            $('#lblHeader').text(caption);
+            $('#modalEditor').modal(action);
+        }
+        //ฟังก์ชั่นสำหรับล้างหน้าจอ Editor ของ popup สำหรับการเพิ่มข้อมูลใหม่
+        function newData() {
+            $('#txtID').val('0');
+            $('#txtCode').val('');
+            $('#txtName').val('');
+            //เปลี่ยนค่า header หน้าจอ edit และแสดงผล
+            showPopupEditor('Add Data', 'show');
+        }
+        //ฟังก์ชั่นสำหรับอ่านข้อมูลแล้วแสดงผลในหน้าจอ popup
+        function loadData(data) {
+            $('#txtID').val(data.oid);
+            $('#txtCode').val(data.countryCode);
+            $('#txtName').val(data.countryName);
+            //เปลี่ยนค่า header ของหน้าจอ edit แล้วโชว์ popup form
+            var str = 'Edit Data : ' + data.countryName + ' (' + data.countryCode + ')';
+            showPopupEditor(str, 'show');
+        }
+		//ฟังก์ชั่นสำหรับอ่านข้อมูลในหน้าจอ popup แล้ว convert เป็น class
+		function getEditorData() {
+		    var obj = {
+		        oid: $('#txtID').val(),
+		        countryCode: $('#txtCode').val(),
+		        countryName: $('#txtName').val()
+		    };
+		    return obj;
+		}
+        //ฟังก์ชั่นสำหรับ post ข้อมูลไปยัง web service เพื่อ save
+		function saveData(){
+			var data=getEditorData();
+			$.post(urlSave,data)
+				.done(function (response) {
+                    //ซ่อน popup form แล้ว load grid
+				    showPopupEditor('', 'hide');
+					showGrid();
+					bootbox.alert(response);
+			});
+		}
+    </script>
+    <h1>@ViewBag.Header</h1>
+    <div id="MainForm">
+        <button id="btnNew" class="btn btn-primary" onclick="newData()">Add New</button>
+        <table id="tbl" class="table table-responsive">
+            <thead>
+                <tr>
+                    <th>oid</th>
+                    <th>seq</th>
+                    <th>code</th>
+                    <th>name</th>
+                    <th>view</th>
+                    <th>menu</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div id="modalEditor" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title"><label id="lblHeader">Edit Data</label></h4>
+                </div>
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <td>
+                                <input type="text" id="txtID" class="form-control" style="display:none"/>
+                            </td>
+                            <td class="col-sm-2">
+                                Code :
+                                <input type="text" id="txtCode" class="form-control" />
+                            </td>
+                            <td class="col-sm-8">
+                                Name :
+                                <input type="text" id="txtName" class="form-control" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button id="btnSave" class="btn btn-success" type="submit" value="submit" onclick="saveData()">Save</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+=
