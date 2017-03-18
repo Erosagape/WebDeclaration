@@ -6,7 +6,6 @@ namespace JobMvc
 	public class BankCode
 	{
 		public const string tbname = "BankCode";
-		public int oid { get; set; }
 		public string Code { get; set; }
 		public string BName { get; set; }
 		public string CustomsCode { get; set; }
@@ -22,7 +21,6 @@ namespace JobMvc
 					{
 						rows.Add(new BankCode()
 						{
-							oid = rd.GetInt32("oid"),
 							Code = rd.GetString("Code"),
 							BName = rd.GetString("BName"),
 							CustomsCode = rd.GetString("CustomsCode")
@@ -41,7 +39,7 @@ namespace JobMvc
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where Code='{0}'", this.Code);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -49,10 +47,6 @@ namespace JobMvc
 						if (tb.Rows.Count > 0)
 						{
 							dr = tb.Rows[0];
-						}
-						else
-						{
-							dr["oid"] = 0;
 						}
 						dr["Code"] = this.Code;
 						dr["BName"] = this.BName;
@@ -75,7 +69,7 @@ namespace JobMvc
 			string msg = "Delete Success";
 			using (Connection cn = new Connection())
 			{
-				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where oid={0}", oid)) == false)
+				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where Code='{0}", oid)) == false)
 				{
 					msg = cn.Message;
 				}
