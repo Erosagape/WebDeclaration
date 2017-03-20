@@ -314,6 +314,7 @@
     <Content Include="Views\CustomsFile\ExchangeRate.cshtml" />
     <Content Include="Views\BankCode.cshtml" />
     <Content Include="Views\MasterFile\BankCode.cshtml" />
+    <Content Include="Views\MasterFile\BookAccount.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

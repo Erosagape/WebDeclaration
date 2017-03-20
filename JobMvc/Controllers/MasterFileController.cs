@@ -27,5 +27,26 @@ namespace JobMvc.Controllers
             string msg=new BankCode().delete(oid);
             return Content(msg);
         }
+        public ActionResult BookAccount()
+        {
+            ViewBag.Title = "Bank Accounts Management";
+            return View();
+        }
+        public ActionResult getBookAccount()
+        {
+            var data = new BookAccount();
+            var model = data.get();
+            return Json(model.ToList(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult setBookAccount(BookAccount data)
+        {
+            string msg = data.save();
+            return Content(msg);
+        }
+        public ActionResult deleteBookAccount(BookAccount data)
+        {
+            string msg = data.delete();
+            return Content(msg);
+        }
     }
 }

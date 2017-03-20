@@ -31,7 +31,6 @@ namespace JobMvc
 					{
 						rows.Add(new BookAccount()
 						{
-							oid = rd.GetInt32("oid"),
 							BranchCode = rd.GetString("BranchCode"),
 							BookCode = rd.GetString("BookCode"),
 							BookName = rd.GetString("BookName"),
@@ -60,7 +59,7 @@ namespace JobMvc
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where branchcode='{0}' and bookcode='{1}'", cn.branchcode,this.BookCode);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -68,10 +67,6 @@ namespace JobMvc
 						if (tb.Rows.Count > 0)
 						{
 							dr = tb.Rows[0];
-						}
-						else
-						{
-							dr["oid"] = 0;
 						}
 						dr["BranchCode"] = this.BranchCode;
 						dr["BookCode"] = this.BookCode;
@@ -99,12 +94,12 @@ namespace JobMvc
 			}
 		}
 
-		public string delete(string oid)
+		public string delete()
 		{
 			string msg = "Delete Success";
 			using (Connection cn = new Connection())
 			{
-				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where oid={0}", oid)) == false)
+				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where branchcode='{0}' and bookcode='{1}'", cn.branchcode,this.BookCode)) == false)
 				{
 					msg = cn.Message;
 				}

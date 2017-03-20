@@ -6,11 +6,13 @@ namespace JobMvc.DataLayer
 {
     public class Connection : IDisposable
     {
+        public string branchcode { get; set; }
         public string Message { get; set; }
         public bool State { get; set; }
         private readonly MySqlConnection cn;
-        public Connection(string db="mvc_test")
+        public Connection(string db="mvc_test",string branch="00")
         {
+            branchcode = branch;
             State = false;
             try
             {
