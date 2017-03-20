@@ -6,7 +6,6 @@ namespace JobMvc
 	public class BookAccount
 	{
 		public const string tbname = "BookAccount";
-		public int oid { get; set; }
 		public string BranchCode { get; set; }
 		public string BookCode { get; set; }
 		public string BookName { get; set; }

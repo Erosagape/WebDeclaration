@@ -9,12 +9,12 @@ namespace JobMvc.DataLayer
         public string Message { get; set; }
         public bool State { get; set; }
         private readonly MySqlConnection cn;
-        public Connection()
+        public Connection(string db="mvc_test")
         {
             State = false;
             try
             {
-                cn = new MySqlConnection("server=localhost;uid=root;pwd=;database=mvc_test;port=3306;CharSet=utf8;");
+                cn = new MySqlConnection("server=localhost;uid=root;pwd=;database="+db+@";port=3306;CharSet=utf8;");
                 cn.Open();
                 State = true;
             }

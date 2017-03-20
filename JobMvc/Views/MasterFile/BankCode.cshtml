@@ -1,13 +1,13 @@
-@{
+﻿@{
     ViewBag.Header = "ข้อมูลธนาคาร";
 }
 <h1>@ViewBag.Header</h1>
 <div id="MainForm">
-     <!--ส่วนนี้ไว้วาง table หรือส่วนของ header form ในการแสดลผลข้อมูลเมื่อเปิดเพจเข้ามา-->    
+    <!--ส่วนนี้ไว้วาง table หรือส่วนของ header form ในการแสดลผลข้อมูลเมื่อเปิดเพจเข้ามา-->
     <button id="btnNew" class="btn btn-primary" onclick="newData()">Add New</button>
     <table id="tbl" class="table table-responsive">
         <!--ใส่รายละเอียดฟิลด์ฺที่จะแสดงในตารางที่นี่ ชื่อกำหนดไว้เป็น default ให้เห็น ไม่มีผลอะไร-->
-        <!--Column View ก็คือ dummy ที่ไว้วางปุ่ม link ข้อมูลไปยัง modal หรือ page อื่นๆ-->        
+        <!--Column View ก็คือ dummy ที่ไว้วางปุ่ม link ข้อมูลไปยัง modal หรือ page อื่นๆ-->
         <thead>
             <tr>
                 <th>oid</th>
@@ -20,7 +20,7 @@
     </table>
 </div>
 <div id="modalEditor" class="modal fade" role="dialog">
-    <!--Modal หลักในการแก้ไขหรือเพิ่มข้อมูล อาจเรียกมาจากการกดปุ่ม View ก็ได้ หรือ คลิกจาก row ในตารางก็ได้-->    
+    <!--Modal หลักในการแก้ไขหรือเพิ่มข้อมูล อาจเรียกมาจากการกดปุ่ม View ก็ได้ หรือ คลิกจาก row ในตารางก็ได้-->
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -29,7 +29,7 @@
                 <h4 class="modal-title"><label id="lblHeader">Edit Bank</label></h4>
             </div>
             <div class="modal-body">
-                <!--ส่วนนี้ไว้วาง field ที่จะเชื่อมต่อกับฐานข้อมูลเพื่อให้ ีuser คีย์ข้อมูล-->                
+                <!--ส่วนนี้ไว้วาง field ที่จะเชื่อมต่อกับฐานข้อมูลเพื่อให้ ีuser คีย์ข้อมูล-->
                 <table>
                     <tr>
                         <td class="col-sm-8">
@@ -47,12 +47,12 @@
                         <td class="col-sm-8">
                             รหัสกรมศุล :
                             <input type="text" id="txt_CustomsCode" class="form-control" />
-                        </td>                        
+                        </td>
                     </tr>
                 </table>
             </div>
             <div class="modal-footer">
-                 <!--ส่วนนี้ไว้วางปุ่ม Save และปุ่มปิด form ไม่ต้องแก้ก็ได้ เว้นแต่จะเพิ่มปุ่ม Delete -->    
+                <!--ส่วนนี้ไว้วางปุ่ม Save และปุ่มปิด form ไม่ต้องแก้ก็ได้ เว้นแต่จะเพิ่มปุ่ม Delete -->
                 <button id="btnSave" class="btn btn-success" type="submit" value="submit" onclick="saveData()">Save</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
@@ -86,7 +86,7 @@
                 ],
                 "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
                     {
-                        "targets": 0, 
+                        "targets": 0,
                         "data": null,
                         "render": function (data, type, full, meta) {
                             rowid++;
@@ -94,7 +94,7 @@
                         }
                     },
                     {
-                        "targets": 4, 
+                        "targets": 4,
                         "data": null,
                         "render": function (data, type, full, meta) {
                             var html = "<button type='button' id='btnEdit' class='btn btn-info'>Edit</button>";
@@ -151,7 +151,7 @@
 		    };
 		    return obj;
 		}
-        //ฟังก์ชั่นสำหรับ post ข้อมูลไปยัง web service เพื่อ save
+        //ฟังก์ชั่นสำหรับ post ข้อมูลไปยัง web service เพื่อ save 
 		function saveData(){
 			var data=getEditorData();
 			$.post(urlSave,data)

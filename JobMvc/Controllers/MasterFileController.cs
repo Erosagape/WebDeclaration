@@ -15,14 +15,14 @@ namespace JobMvc.Controllers
         {
             var data=new BankCode();
             var model=data.get();
-            return Json(model.ToList(),JsonRequestBehavior.AllowGet());
+            return Json(model.ToList(),JsonRequestBehavior.AllowGet);
         }
         public ActionResult setBankCode(BankCode data)
         {
             string msg=data.save();
             return Content(msg);
         }
-        public ActionResult deleteBankCode(int oid)
+        public ActionResult deleteBankCode(string oid)
         {
             string msg=new BankCode().delete(oid);
             return Content(msg);

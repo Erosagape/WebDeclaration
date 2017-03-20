@@ -196,6 +196,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\CustomsFileController.cs" />
+    <Compile Include="Controllers\MasterFileController.cs" />
     <Compile Include="DataLayer\Connection.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -311,6 +312,8 @@
     <Content Include="Views\CustomsFile\Currency.cshtml" />
     <Content Include="Views\CustomsFile\InterPort.cshtml" />
     <Content Include="Views\CustomsFile\ExchangeRate.cshtml" />
+    <Content Include="Views\BankCode.cshtml" />
+    <Content Include="Views\MasterFile\BankCode.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
