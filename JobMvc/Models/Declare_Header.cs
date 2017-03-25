@@ -119,7 +119,6 @@ namespace JobMvc
 					{
 						rows.Add(new DecInvoice_Header()
 						{
-							oid = rd.GetInt32("oid"),
 							BranchCode = rd.GetString("BranchCode"),
 							RefNO = rd.GetString("RefNO"),
 							InvNO = rd.GetString("InvNO"),

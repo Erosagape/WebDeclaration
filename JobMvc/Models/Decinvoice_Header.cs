@@ -6,7 +6,6 @@ namespace JobMvc
 	public class DecInvoice_Header
 	{
 		public const string tbname = "DecInvoice_Header";
-		public int oid { get; set; }
 		public string BranchCode { get; set; }
 		public string RefNO { get; set; }
 		public string InvNO { get; set; }
@@ -65,165 +64,165 @@ namespace JobMvc
 		public string NotifySubProvince { get; set; }
 		public string NotifyProvince { get; set; }
 		public string NotifyPostCode { get; set; }
-		public DateTime InvDate { get; set; }
-		public DateTime DepartureDate { get; set; }
-		public DateTime RecDate { get; set; }
-		public DateTime RecTime { get; set; }
-		public DateTime SignDate { get; set; }
-		public DateTime SignTime { get; set; }
-		public int DocStatus { get; set; }
-		public int AvgExp2Free { get; set; }
-		public int ResponseStatus { get; set; }
-		public int IsCancel { get; set; }
-		public int InvoiceType { get; set; }
-		public int IsNotAutoCal { get; set; }
-		public Double InvCurRate { get; set; }
-		public Double TotalNetW { get; set; }
-		public Double TotalInvoice { get; set; }
-		public Double TotalInvTHB { get; set; }
-		public Double CurExpOtherRate { get; set; }
-		public Double TotalExpOther { get; set; }
-		public Double TotalExpOtherTHB { get; set; }
-		public Double CurExplandingRate { get; set; }
-		public Double TotalExplanding { get; set; }
-		public Double TotalExplandingTHB { get; set; }
-		public Double CurExpInlandRate { get; set; }
-		public Double TotalExpInland { get; set; }
-		public Double TotalExpInlandTHB { get; set; }
-		public Double CurExpPackRate { get; set; }
-		public Double TotalExpPack { get; set; }
-		public Double TotalExpPackTHB { get; set; }
-		public Double CurExpFwdRate { get; set; }
-		public Double TotalExpForward { get; set; }
-		public Double TotalExpForwardTHB { get; set; }
-		public Double CurExpShpRate { get; set; }
-		public Double TotalExpShipping { get; set; }
-		public Double TotalExpShippingTHB { get; set; }
-		public Double CurExpFrgRate { get; set; }
-		public Double TotalExpFreight { get; set; }
-		public Double TotalExpFreightTHB { get; set; }
-		public Double CurExpInsRate { get; set; }
-		public Double TotalExpInsurance { get; set; }
-		public Double TotalExpInsuranceTHB { get; set; }
-		public Double TotalIncreasedPrice { get; set; }
-		public Double TotalIncreasedPriceTHB { get; set; }
+		public DateTime? InvDate { get; set; }
+		public DateTime? DepartureDate { get; set; }
+		public DateTime? RecDate { get; set; }
+		public DateTime? RecTime { get; set; }
+		public DateTime? SignDate { get; set; }
+		public DateTime? SignTime { get; set; }
+		public int? DocStatus { get; set; }
+		public int? AvgExp2Free { get; set; }
+		public int? ResponseStatus { get; set; }
+		public int? IsCancel { get; set; }
+		public int? InvoiceType { get; set; }
+		public int? IsNotAutoCal { get; set; }
+		public Double? InvCurRate { get; set; }
+		public Double? TotalNetW { get; set; }
+		public Double? TotalInvoice { get; set; }
+		public Double? TotalInvTHB { get; set; }
+		public Double? CurExpOtherRate { get; set; }
+		public Double? TotalExpOther { get; set; }
+		public Double? TotalExpOtherTHB { get; set; }
+		public Double? CurExplandingRate { get; set; }
+		public Double? TotalExplanding { get; set; }
+		public Double? TotalExplandingTHB { get; set; }
+		public Double? CurExpInlandRate { get; set; }
+		public Double? TotalExpInland { get; set; }
+		public Double? TotalExpInlandTHB { get; set; }
+		public Double? CurExpPackRate { get; set; }
+		public Double? TotalExpPack { get; set; }
+		public Double? TotalExpPackTHB { get; set; }
+		public Double? CurExpFwdRate { get; set; }
+		public Double? TotalExpForward { get; set; }
+		public Double? TotalExpForwardTHB { get; set; }
+		public Double? CurExpShpRate { get; set; }
+		public Double? TotalExpShipping { get; set; }
+		public Double? TotalExpShippingTHB { get; set; }
+		public Double? CurExpFrgRate { get; set; }
+		public Double? TotalExpFreight { get; set; }
+		public Double? TotalExpFreightTHB { get; set; }
+		public Double? CurExpInsRate { get; set; }
+		public Double? TotalExpInsurance { get; set; }
+		public Double? TotalExpInsuranceTHB { get; set; }
+		public Double? TotalIncreasedPrice { get; set; }
+		public Double? TotalIncreasedPriceTHB { get; set; }
 
 		public List<DecInvoice_Header> get()
 		{
 			var rows = new List<DecInvoice_Header>();
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				using (var rd = cn.getDataReader("select * from " + tbname))
 				{
-					while (rd.Read())
-					{
-						rows.Add(new DecInvoice_Header()
-						{
-							oid = rd.GetInt32("oid"),
-							BranchCode = rd.GetString("BranchCode"),
-							RefNO = rd.GetString("RefNO"),
-							InvNO = rd.GetString("InvNO"),
-							TrackingNO = rd.GetString("TrackingNO"),
-							CmpCode = rd.GetString("CmpCode"),
-							CmpTaxNumber = rd.GetString("CmpTaxNumber"),
-							CmpBranch = rd.GetString("CmpBranch"),
-							SellerStatus = rd.GetString("SellerStatus"),
-							ConsigneeStatus = rd.GetString("ConsigneeStatus"),
-							CommercialLevel = rd.GetString("CommercialLevel"),
-							BuyerCode = rd.GetString("BuyerCode"),
-							BuyerName = rd.GetString("BuyerName"),
-							Street = rd.GetString("Street"),
-							District = rd.GetString("District"),
-							Subprovince = rd.GetString("Subprovince"),
-							Province = rd.GetString("Province"),
-							Postcode = rd.GetString("Postcode"),
-							EmailAddr = rd.GetString("EmailAddr"),
-							ConsigneeAddr = rd.GetString("ConsigneeAddr"),
-							PurchaseCountry = rd.GetString("PurchaseCountry"),
-							NotifyPartyCode = rd.GetString("NotifyPartyCode"),
-							NotifyPartyName = rd.GetString("NotifyPartyName"),
-							NotifyPartyAddr = rd.GetString("NotifyPartyAddr"),
-							NotifyPartyEMail = rd.GetString("NotifyPartyEMail"),
-							CurExpInland = rd.GetString("CurExpInland"),
-							CurExpPack = rd.GetString("CurExpPack"),
-							CurExpFwd = rd.GetString("CurExpFwd"),
-							CurExpShp = rd.GetString("CurExpShp"),
-							CurExpFrg = rd.GetString("CurExpFrg"),
-							CurExpIns = rd.GetString("CurExpIns"),
-							AvgExpOther = rd.GetString("AvgExpOther"),
-							AvgExpInland = rd.GetString("AvgExpInland"),
-							AvgExplanding = rd.GetString("AvgExplanding"),
-							AvgExpFwd = rd.GetString("AvgExpFwd"),
-							DestinationCountry = rd.GetString("DestinationCountry"),
-							IncoTerms = rd.GetString("IncoTerms"),
-							InvCurrency = rd.GetString("InvCurrency"),
-							NetWUnit = rd.GetString("NetWUnit"),
-							CurExpOther = rd.GetString("CurExpOther"),
-							CurExplanding = rd.GetString("CurExplanding"),
-							AvgExpPack = rd.GetString("AvgExpPack"),
-							AvgExpShp = rd.GetString("AvgExpShp"),
-							AvgExpFrg = rd.GetString("AvgExpFrg"),
-							AvgExpIns = rd.GetString("AvgExpIns"),
-							RecByUser = rd.GetString("RecByUser"),
-							UIDTransmit = rd.GetString("UIDTransmit"),
-							SignBy = rd.GetString("SignBy"),
-							FileToSend = rd.GetString("FileToSend"),
-							PoNo = rd.GetString("PoNo"),
-							PaymentTerm = rd.GetString("PaymentTerm"),
-							OtherChargeDesc = rd.GetString("OtherChargeDesc"),
-							SelfCertRemark = rd.GetString("SelfCertRemark"),
-							AEOsReferNo = rd.GetString("AEOsReferNo"),
-							NotifyStreet = rd.GetString("NotifyStreet"),
-							NotifyDistrict = rd.GetString("NotifyDistrict"),
-							NotifySubProvince = rd.GetString("NotifySubProvince"),
-							NotifyProvince = rd.GetString("NotifyProvince"),
-							NotifyPostCode = rd.GetString("NotifyPostCode"),
+                    while (rd.Read())
+                    {
+                        var data = new DecInvoice_Header();
 
-							InvDate = rd.GetDateTime("InvDate"),
-							DepartureDate = rd.GetDateTime("DepartureDate"),
-							RecDate = rd.GetDateTime("RecDate"),
-							RecTime = rd.GetDateTime("RecTime"),
-							SignDate = rd.GetDateTime("SignDate"),
-							SignTime = rd.GetDateTime("SignTime"),
+                        data.BranchCode = "" + rd.GetValue(rd.GetOrdinal("BranchCode"));
+                        data.RefNO = "" + rd.GetValue(rd.GetOrdinal("RefNO"));
+                        data.InvNO = "" + rd.GetValue(rd.GetOrdinal("InvNO"));
+                        data.TrackingNO = "" + rd.GetValue(rd.GetOrdinal("TrackingNO"));
+                        data.CmpCode = "" + rd.GetValue(rd.GetOrdinal("CmpCode"));
+                        data.CmpTaxNumber = "" + rd.GetValue(rd.GetOrdinal("CmpTaxNumber"));
+                        data.CmpBranch = "" + rd.GetValue(rd.GetOrdinal("CmpBranch"));
+                        data.SellerStatus = "" + rd.GetValue(rd.GetOrdinal("SellerStatus"));
+                        data.ConsigneeStatus = "" + rd.GetValue(rd.GetOrdinal("ConsigneeStatus"));
+                        data.CommercialLevel = "" + rd.GetValue(rd.GetOrdinal("CommercialLevel"));
+                        data.BuyerCode = "" + rd.GetValue(rd.GetOrdinal("BuyerCode"));
+                        data.BuyerName = "" + rd.GetValue(rd.GetOrdinal("BuyerName"));
+                        data.Street = "" + rd.GetValue(rd.GetOrdinal("Street"));
+                        data.District = "" + rd.GetValue(rd.GetOrdinal("District"));
+                        data.Subprovince = "" + rd.GetValue(rd.GetOrdinal("Subprovince"));
+                        data.Province = "" + rd.GetValue(rd.GetOrdinal("Province"));
+                        data.Postcode = "" + rd.GetValue(rd.GetOrdinal("Postcode"));
+                        data.EmailAddr = "" + rd.GetValue(rd.GetOrdinal("EmailAddr"));
+                        data.ConsigneeAddr = "" + rd.GetValue(rd.GetOrdinal("ConsigneeAddr"));
+                        data.PurchaseCountry = "" + rd.GetValue(rd.GetOrdinal("PurchaseCountry"));
+                        data.NotifyPartyCode = "" + rd.GetValue(rd.GetOrdinal("NotifyPartyCode"));
+                        data.NotifyPartyName = "" + rd.GetValue(rd.GetOrdinal("NotifyPartyName"));
+                        data.NotifyPartyAddr = "" + rd.GetValue(rd.GetOrdinal("NotifyPartyAddr"));
+                        data.NotifyPartyEMail = "" + rd.GetValue(rd.GetOrdinal("NotifyPartyEMail"));
+                        data.CurExpInland = "" + rd.GetValue(rd.GetOrdinal("CurExpInland"));
+                        data.CurExpPack = "" + rd.GetValue(rd.GetOrdinal("CurExpPack"));
+                        data.CurExpFwd = "" + rd.GetValue(rd.GetOrdinal("CurExpFwd"));
+                        data.CurExpShp = "" + rd.GetValue(rd.GetOrdinal("CurExpShp"));
+                        data.CurExpFrg = "" + rd.GetValue(rd.GetOrdinal("CurExpFrg"));
+                        data.CurExpIns = "" + rd.GetValue(rd.GetOrdinal("CurExpIns"));
+                        data.AvgExpOther = "" + rd.GetValue(rd.GetOrdinal("AvgExpOther"));
+                        data.AvgExpInland = "" + rd.GetValue(rd.GetOrdinal("AvgExpInland"));
+                        data.AvgExplanding = "" + rd.GetValue(rd.GetOrdinal("AvgExplanding"));
+                        data.AvgExpFwd = "" + rd.GetValue(rd.GetOrdinal("AvgExpFwd"));
+                        data.DestinationCountry = "" + rd.GetValue(rd.GetOrdinal("DestinationCountry"));
+                        data.IncoTerms = "" + rd.GetValue(rd.GetOrdinal("IncoTerms"));
+                        data.InvCurrency = "" + rd.GetValue(rd.GetOrdinal("InvCurrency"));
+                        data.NetWUnit = "" + rd.GetValue(rd.GetOrdinal("NetWUnit"));
+                        data.CurExpOther = "" + rd.GetValue(rd.GetOrdinal("CurExpOther"));
+                        data.CurExplanding = "" + rd.GetValue(rd.GetOrdinal("CurExplanding"));
+                        data.AvgExpPack = "" + rd.GetValue(rd.GetOrdinal("AvgExpPack"));
+                        data.AvgExpShp = "" + rd.GetValue(rd.GetOrdinal("AvgExpShp"));
+                        data.AvgExpFrg = "" + rd.GetValue(rd.GetOrdinal("AvgExpFrg"));
+                        data.AvgExpIns = "" + rd.GetValue(rd.GetOrdinal("AvgExpIns"));
+                        data.RecByUser = "" + rd.GetValue(rd.GetOrdinal("RecByUser"));
+                        data.UIDTransmit = "" + rd.GetValue(rd.GetOrdinal("UIDTransmit"));
+                        data.SignBy = "" + rd.GetValue(rd.GetOrdinal("SignBy"));
+                        data.FileToSend = "" + rd.GetValue(rd.GetOrdinal("FileToSend"));
+                        data.PoNo = "" + rd.GetValue(rd.GetOrdinal("PoNo"));
+                        data.PaymentTerm = "" + rd.GetValue(rd.GetOrdinal("PaymentTerm"));
+                        data.OtherChargeDesc = "" + rd.GetValue(rd.GetOrdinal("OtherChargeDesc"));
+                        data.SelfCertRemark = "" + rd.GetValue(rd.GetOrdinal("SelfCertRemark"));
+                        data.AEOsReferNo = "" + rd.GetValue(rd.GetOrdinal("AEOsReferNo"));
+                        data.NotifyStreet = "" + rd.GetValue(rd.GetOrdinal("NotifyStreet"));
+                        data.NotifyDistrict = "" + rd.GetValue(rd.GetOrdinal("NotifyDistrict"));
+                        data.NotifySubProvince = "" + rd.GetValue(rd.GetOrdinal("NotifySubProvince"));
+                        data.NotifyProvince = "" + rd.GetValue(rd.GetOrdinal("NotifyProvince"));
+                        data.NotifyPostCode = "" + rd.GetValue(rd.GetOrdinal("NotifyPostCode"));
 
-							DocStatus = rd.GetInt32("DocStatus"),
-							AvgExp2Free = rd.GetInt32("AvgExp2Free"),
-							ResponseStatus = rd.GetInt32("ResponseStatus"),
-							IsCancel = rd.GetInt32("IsCancel"),
-							InvoiceType = rd.GetInt32("InvoiceType"),
-							IsNotAutoCal = rd.GetInt32("IsNotAutoCal"),
+                        data.InvDate = rd.GetDateTime("InvDate");
+                        try { data.DepartureDate = rd.GetDateTime("DepartureDate"); } catch { continue; }
+                        data.RecDate = rd.GetDateTime("RecDate");
+                        data.RecTime = rd.GetDateTime("RecTime");
+                        try { data.SignDate = Convert.ToDateTime(rd.GetValue(rd.GetOrdinal("SignDate"))); } catch { continue; }
+                        try { data.SignTime = Convert.ToDateTime(rd.GetValue(rd.GetOrdinal("SignTime"))); } catch { continue; }
 
-							InvCurRate = rd.GetDouble("InvCurRate"),
-							TotalNetW = rd.GetDouble("TotalNetW"),
-							TotalInvoice = rd.GetDouble("TotalInvoice"),
-							TotalInvTHB = rd.GetDouble("TotalInvTHB"),
-							CurExpOtherRate = rd.GetDouble("CurExpOtherRate"),
-							TotalExpOther = rd.GetDouble("TotalExpOther"),
-							TotalExpOtherTHB = rd.GetDouble("TotalExpOtherTHB"),
-							CurExplandingRate = rd.GetDouble("CurExplandingRate"),
-							TotalExplanding = rd.GetDouble("TotalExplanding"),
-							TotalExplandingTHB = rd.GetDouble("TotalExplandingTHB"),
-							CurExpInlandRate = rd.GetDouble("CurExpInlandRate"),
-							TotalExpInland = rd.GetDouble("TotalExpInland"),
-							TotalExpInlandTHB = rd.GetDouble("TotalExpInlandTHB"),
-							CurExpPackRate = rd.GetDouble("CurExpPackRate"),
-							TotalExpPack = rd.GetDouble("TotalExpPack"),
-							TotalExpPackTHB = rd.GetDouble("TotalExpPackTHB"),
-							CurExpFwdRate = rd.GetDouble("CurExpFwdRate"),
-							TotalExpForward = rd.GetDouble("TotalExpForward"),
-							TotalExpForwardTHB = rd.GetDouble("TotalExpForwardTHB"),
-							CurExpShpRate = rd.GetDouble("CurExpShpRate"),
-							TotalExpShipping = rd.GetDouble("TotalExpShipping"),
-							TotalExpShippingTHB = rd.GetDouble("TotalExpShippingTHB"),
-							CurExpFrgRate = rd.GetDouble("CurExpFrgRate"),
-							TotalExpFreight = rd.GetDouble("TotalExpFreight"),
-							TotalExpFreightTHB = rd.GetDouble("TotalExpFreightTHB"),
-							CurExpInsRate = rd.GetDouble("CurExpInsRate"),
-							TotalExpInsurance = rd.GetDouble("TotalExpInsurance"),
-							TotalExpInsuranceTHB = rd.GetDouble("TotalExpInsuranceTHB"),
-							TotalIncreasedPrice = rd.GetDouble("TotalIncreasedPrice"),
-							TotalIncreasedPriceTHB = rd.GetDouble("TotalIncreasedPriceTHB")
-						});
+                        data.DocStatus = rd.GetInt32("DocStatus");
+                        data.AvgExp2Free = rd.GetInt32("AvgExp2Free");
+                        data.ResponseStatus = rd.GetInt32("ResponseStatus");
+                        data.IsCancel = rd.GetInt32("IsCancel");
+                        data.InvoiceType = rd.GetInt32("InvoiceType");
+                        data.IsNotAutoCal =Convert.ToInt32("0" + rd.GetValue(rd.GetOrdinal("IsNotAutoCal")));
+
+                        data.InvCurRate = rd.GetDouble("InvCurRate");
+                        data.TotalNetW = rd.GetDouble("TotalNetW");
+                        data.TotalInvoice = rd.GetDouble("TotalInvoice");
+                        data.TotalInvTHB = rd.GetDouble("TotalInvTHB");
+                        data.CurExpOtherRate = rd.GetDouble("CurExpOtherRate");
+                        data.TotalExpOther = rd.GetDouble("TotalExpOther");
+                        data.TotalExpOtherTHB = rd.GetDouble("TotalExpOtherTHB");
+                        data.CurExplandingRate = rd.GetDouble("CurExplandingRate");
+                        data.TotalExplanding = rd.GetDouble("TotalExplanding");
+                        data.TotalExplandingTHB = rd.GetDouble("TotalExplandingTHB");
+                        data.CurExpInlandRate = rd.GetDouble("CurExpInlandRate");
+                        data.TotalExpInland = rd.GetDouble("TotalExpInland");
+                        data.TotalExpInlandTHB = rd.GetDouble("TotalExpInlandTHB");
+                        data.CurExpPackRate = rd.GetDouble("CurExpPackRate");
+                        data.TotalExpPack = rd.GetDouble("TotalExpPack");
+                        data.TotalExpPackTHB = rd.GetDouble("TotalExpPackTHB");
+                        data.CurExpFwdRate = rd.GetDouble("CurExpFwdRate");
+                        data.TotalExpForward = rd.GetDouble("TotalExpForward");
+                        data.TotalExpForwardTHB = rd.GetDouble("TotalExpForwardTHB");
+                        data.CurExpShpRate = rd.GetDouble("CurExpShpRate");
+                        data.TotalExpShipping = rd.GetDouble("TotalExpShipping");
+                        data.TotalExpShippingTHB = rd.GetDouble("TotalExpShippingTHB");
+                        data.CurExpFrgRate = rd.GetDouble("CurExpFrgRate");
+                        data.TotalExpFreight = rd.GetDouble("TotalExpFreight");
+                        data.TotalExpFreightTHB = rd.GetDouble("TotalExpFreightTHB");
+                        data.CurExpInsRate = rd.GetDouble("CurExpInsRate");
+                        data.TotalExpInsurance = rd.GetDouble("TotalExpInsurance");
+                        data.TotalExpInsuranceTHB = rd.GetDouble("TotalExpInsuranceTHB");
+                        data.TotalIncreasedPrice = rd.GetDouble("TotalIncreasedPrice");
+                        data.TotalIncreasedPriceTHB = rd.GetDouble("TotalIncreasedPriceTHB");
+                        
+                        rows.Add(data);
 					}
 					rd.Close();
 				}
@@ -234,11 +233,11 @@ namespace JobMvc
 
 		public string save()
 		{
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where BranchCode='{0}' and RefNo='{1}'", cn.branchcode,this.RefNO);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -246,10 +245,6 @@ namespace JobMvc
 						if (tb.Rows.Count > 0)
 						{
 							dr = tb.Rows[0];
-						}
-						else
-						{
-							dr["oid"] = 0;
 						}
 						dr["BranchCode"] = this.BranchCode;
 						dr["RefNO"] = this.RefNO;
@@ -367,12 +362,12 @@ namespace JobMvc
 			}
 		}
 
-		public string delete(string oid)
+		public string delete(string ReFNo)
 		{
 			string msg = "Delete Success";
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
-				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where oid={0}", oid)) == false)
+				if (cn.ExecuteSQL(string.Format("update " + tbname + " set DocStatus='99' where BranchCode='{0}' and RefNo='{1}'", cn.branchcode,this.RefNO)) == false)
 				{
 					msg = cn.Message;
 				}

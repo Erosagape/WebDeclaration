@@ -372,3 +372,4 @@ C:\Users\Administrator\Documents\Visual Studio 2015\Projects\WebDeclaration\JobM
 C:\Users\Administrator\Documents\Visual Studio 2015\Projects\WebDeclaration\JobMvc\obj\Release\JobMvc.dll.licenses
 C:\Users\Administrator\Documents\Visual Studio 2015\Projects\WebDeclaration\JobMvc\obj\Release\JobMvc.dll
 C:\Users\Administrator\Documents\Visual Studio 2015\Projects\WebDeclaration\JobMvc\obj\Release\JobMvc.pdb
+C:\Users\Administrator\Documents\Visual Studio 2015\Projects\WebDeclaration\JobMvc\obj\Release\DemoCDP.csprojResolveAssemblyReference.cache

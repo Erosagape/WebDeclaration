@@ -241,7 +241,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/01/2017 14:00:14</publishTime>
     </File>
     <File Include="bin/JobMvc.dll">
-      <publishTime>03/18/2017 22:25:02</publishTime>
+      <publishTime>03/20/2017 16:00:17</publishTime>
     </File>
     <File Include="bin/ko/Microsoft.Data.Edm.resources.dll">
       <publishTime>02/01/2017 14:00:38</publishTime>
@@ -678,6 +678,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Views/MasterFile/BankCode.cshtml">
       <publishTime>03/18/2017 22:22:07</publishTime>
     </File>
+    <File Include="Views/MasterFile/BookAccount.cshtml">
+      <publishTime>03/20/2017 13:50:07</publishTime>
+    </File>
     <File Include="Views/NotifyParties/Create.cshtml">
       <publishTime>03/11/2017 14:15:35</publishTime>
     </File>
@@ -709,7 +712,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/11/2017 14:15:35</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>03/18/2017 22:23:44</publishTime>
+      <publishTime>03/20/2017 14:58:36</publishTime>
     </File>
     <File Include="Views/Shipments/Create.cshtml">
       <publishTime>03/11/2017 14:15:35</publishTime>

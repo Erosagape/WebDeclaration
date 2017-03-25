@@ -196,6 +196,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\CustomsFileController.cs" />
+    <Compile Include="Controllers\InvoiceController.cs" />
     <Compile Include="Controllers\MasterFileController.cs" />
     <Compile Include="DataLayer\Connection.cs" />
     <Compile Include="Global.asax.cs">
@@ -315,6 +316,7 @@
     <Content Include="Views\BankCode.cshtml" />
     <Content Include="Views\MasterFile\BankCode.cshtml" />
     <Content Include="Views\MasterFile\BookAccount.cshtml" />
+    <Content Include="Views\Invoice\Invoice.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

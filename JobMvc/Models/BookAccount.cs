@@ -23,7 +23,7 @@ namespace JobMvc
 		public List<BookAccount> get()
 		{
 			var rows = new List<BookAccount>();
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				using (var rd = cn.getDataReader("select * from " + tbname))
 				{
@@ -55,7 +55,7 @@ namespace JobMvc
 
 		public string save()
 		{
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				try
 				{
@@ -97,7 +97,7 @@ namespace JobMvc
 		public string delete()
 		{
 			string msg = "Delete Success";
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where branchcode='{0}' and bookcode='{1}'", cn.branchcode,this.BookCode)) == false)
 				{
