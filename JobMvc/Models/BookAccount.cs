@@ -68,7 +68,7 @@ namespace JobMvc
 						{
 							dr = tb.Rows[0];
 						}
-						dr["BranchCode"] = this.BranchCode;
+						dr["BranchCode"] = cn.branchcode;
 						dr["BookCode"] = this.BookCode;
 						dr["BookName"] = this.BookName;
 						dr["BankCode"] = this.BankCode;

@@ -58,7 +58,7 @@
                         <td class="col-sm-4">
                             ประเภทบัญชี :<br/>
                             <select id="sel_ACType" class="form-control dropdown">
-                                <option value="S">Saving</option>
+                                <option value="S" selected>Saving</option>
                                 <option value="C">Current</option>
                             </select>
                         </td>
@@ -78,141 +78,165 @@
     </div>
 </div>
 <script type="text/javascript">
-        var path='@Url.Content("~")';
-        var urlSource = path+ 'MasterFile/getBookAccount';
-        var urlSave = path + 'MasterFile/setBookAccount';
-        var urlBankCode = path + 'MasterFile/getBankCode';
-        //Event ตอนเปิดเพจมาให้ load grid เลย
-        $(document).ready(function () {
-            showGrid();
-            loadBankCode();
-        });
-        //ฟังก์ชั่นสำหรับ get ข้อมูลจาก web service มาแสดงผลใน table
-        function showGrid() {
-            var rowid = 0;
-            //กำหนดค่า table grid
-            $('#tbl').DataTable({
-                ajax: {
-                    url: urlSource, //web service ที่จะ call ไปดึงข้อมูลมา
-                    dataSrc: ''
-                },
-                selected: true, //ให้สามารถเลือกแถวได้
-                columns: [ //กำหนด property ของ header column
-                     { data: null, title:"ลำดับที่"},
-                     { data: "BookCode", title:"เลขที่บัญชี"},
-                     { data: "BookName", title:"ชื่อบัญชี"},
-                     { data: "BankCode", title:"ธนาคาร"},
-                     { data: "BankBranch", title:"สาขา"},
-                     { data: "ACType", title:"ประเภทบัญชี"},
-                     { data: "IsLocal", title:"ในพื้นที่"},
-                     { data: null, title:"EDIT"},
-                ],
-                "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
-                    {
-                        "targets": 0,
-                        "data": null,
-                        "render": function (data, type, full, meta) {
-                            rowid++;
-                            return rowid;
-                        }
-                    },
-                    {
-                        "targets": 7,
-                        "data": null,
-                        "render": function (data, type, full, meta) {
-                            var html = "<button type='button' id='btnEdit' class='btn btn-info'>Edit</button>";
-                            return html;
-                        }
-                    },
-                ],
-                destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
-            });
-            //เซ็ตค่า Event ให้ เวลาเลือกแถวให้แสดงสีแถวที่ถูกเลือก
-            $('#tbl tbody').on('click', 'tr', function () {
-                $('#tbl tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
-                $(this).addClass('selected'); //select row ใหม่
-            });
-            //กำหนด Event ให้เวลากดปุ่ม Edit ให้แดสงข้อมูลใน popup form
-            $('#tbl tbody').on('click', '#btnEdit', function () {
-                var dt = getRowData('#tbl', this);
-                loadData(dt);
-            });
-        }
-        //ฟังก์ชั่นสำหรับ get ข้อมูลจาก row ปัจจุบัน ที่ user เลือกอยู่
-        function getRowData(tb, e) {
-            var indexRow = $(e).parents('tr');
-            return $(tb).DataTable().row(indexRow).data();
-        }
-        //ฟังก์ชั่นสำหรับเรียก popup ให้แสดงผล หรือซ่อน popup ที่แสดงอยู่
-        function showPopupEditor(caption, action) {
-            $('#lblHeader').text(caption);
-            $('#modalEditor').modal(action);
-        }
-        //ฟังก์ชั่นสำหรับล้างหน้าจอ Editor ของ popup สำหรับการเพิ่มข้อมูลใหม่
-        function newData() {
-            $('#txt_BookCode').val('');
-            $('#txt_BookName').val('');
-            $('#sel_BankCode').val('');
-            $('#txt_BankBranch').val('');
-            $('#sel_ACType').val('');
-            $('#chk_IsLocal').prop('checked', true);
-            //เปลี่ยนค่า header หน้าจอ edit และแสดงผล
-            showPopupEditor('Add Data', 'show');
-        }
-        //ฟังก์ชั่นสำหรับอ่านข้อมูลแล้วแสดงผลในหน้าจอ popup
-        function loadData(data) {
-            $('#txt_BookCode').val(data.BookCode);
-            $('#txt_BookName').val(data.BookName);
-            $('#sel_BankCode').val(data.BankCode);
-            $('#txt_BankBranch').val(data.BankBranch);
-            $('#sel_ACType').val(data.ACType);
-            $('#chk_IsLocal').prop('checked', (data.IsLocal == 1 ? true : false));
-            //เปลี่ยนค่า header ของหน้าจอ edit แล้วโชว์ popup form
-            var str = 'Edit Data : ';
-            showPopupEditor(str, 'show');
-        }
-		//ฟังก์ชั่นสำหรับอ่านข้อมูลในหน้าจอ popup แล้ว convert เป็น class
-		function getEditorData() {
-		    var obj = {
-                BranchCode: '@ViewBag.BranchCode',
-		        BookCode: $('#txt_BookCode').val(),
-		        BookName: $('#txt_BookName').val(),
-		        BankCode: $('#sel_BankCode').val(),
-		        BankBranch: $('#txt_BankBranch').val(),
-		        ACType: $('#sel_ACType').val(),
-		        IsLocal: ($('#chk_IsLocal').prop('checked') ? 1 : 0),
-		        TAddress1: '-',
-		        TAddress2: '-',
-		        EAddress1: '-',
-		        EAddress2: '-',
-		        Phone: '-',
-                FaxNumber:'-'
-		    };
-		    return obj;
-		}
-        //ฟังก์ชั่นสำหรับ post ข้อมูลไปยัง web service เพื่อ save
-		function saveData(){
-			var data=getEditorData();
-			$.post(urlSave,data)
-				.done(function (response) {
-                    //ซ่อน popup form แล้ว load grid
-				    showPopupEditor('', 'hide');
-					showGrid();
-					bootbox.alert(response);
-			});
-		}
-        //populate combo
-		function loadBankCode() {
-		    $.get(urlBankCode)
-                .done(function (data) {
-                    if (data.length > 0) {
-                        $('#sel_BankCode').empty();
-                        for (var i = 0; i < data.length; i++) {
-                            $('#sel_BankCode')
-                            .append($('<option>', { value: data[i].Code })
-                            .text(data[i].BName));
-                        }
+    var path='@Url.Content("~")';
+    var urlSource = path+ 'MasterFile/getBookAccount';
+    var urlSave = path + 'MasterFile/setBookAccount';
+    var urlBankCode = path + 'MasterFile/getBankCode';
+    //Event ตอนเปิดเพจมาให้ load grid เลย
+    $(document).ready(function () {
+        showGrid();
+        loadBankCode();
+    });
+    //ฟังก์ชั่นสำหรับ get ข้อมูลจาก web service มาแสดงผลใน table
+    function showGrid() {
+        var rowid = 0;
+        //กำหนดค่า table grid
+        $('#tbl').DataTable({
+            ajax: {
+                url: urlSource, //web service ที่จะ call ไปดึงข้อมูลมา
+                dataSrc: ''
+            },
+            selected: true, //ให้สามารถเลือกแถวได้
+            columns: [ //กำหนด property ของ header column
+                    { data: null, title:"ลำดับที่"},
+                    { data: "BookCode", title:"เลขที่บัญชี"},
+                    { data: "BookName", title:"ชื่อบัญชี"},
+                    { data: "BankCode", title:"ธนาคาร"},
+                    { data: "BankBranch", title:"สาขา"},
+                    { data: "ACType", title:"ประเภทบัญชี"},
+                    { data: "IsLocal", title:"ในพื้นที่"},
+                    { data: null, title:"EDIT"},
+            ],
+            "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
+                {
+                    "targets": 0,
+                    "data": null,
+                    "render": function (data, type, full, meta) {
+                        rowid++;
+                        return rowid;
                     }
-                });
-		}
+                },
+                {
+                    "targets": 7,
+                    "data": null,
+                    "render": function (data, type, full, meta) {
+                        var html = "<button type='button' id='btnEdit' class='btn btn-info'>Edit</button>";
+                        return html;
+                    }
+                },
+            ],
+            destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+        });
+        //เซ็ตค่า Event ให้ เวลาเลือกแถวให้แสดงสีแถวที่ถูกเลือก
+        $('#tbl tbody').on('click', 'tr', function () {
+            $('#tbl tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+            $(this).addClass('selected'); //select row ใหม่
+        });
+        //กำหนด Event ให้เวลากดปุ่ม Edit ให้แดสงข้อมูลใน popup form
+        $('#tbl tbody').on('click', '#btnEdit', function () {
+            var dt = getRowData('#tbl', this);
+            loadData(dt);
+        });
+    }
+    //ฟังก์ชั่นสำหรับ get ข้อมูลจาก row ปัจจุบัน ที่ user เลือกอยู่
+    function getRowData(tb, e) {
+        var indexRow = $(e).parents('tr');
+        return $(tb).DataTable().row(indexRow).data();
+    }
+    //ฟังก์ชั่นสำหรับเรียก popup ให้แสดงผล หรือซ่อน popup ที่แสดงอยู่
+    function showPopupEditor(caption, action) {
+        $('#lblHeader').text(caption);
+        $('#modalEditor').modal(action);
+    }
+    //ฟังก์ชั่นสำหรับล้างหน้าจอ Editor ของ popup สำหรับการเพิ่มข้อมูลใหม่
+    function newData() {
+        $('#txt_BookCode').val('');
+        $('#txt_BookName').val('');
+        $('#sel_BankCode').val('');
+        $('#txt_BankBranch').val('');
+        $('#sel_ACType').val('S');
+        $('#chk_IsLocal').prop('checked', true);
+        //เปลี่ยนค่า header หน้าจอ edit และแสดงผล
+        showPopupEditor('Add Data', 'show');
+    }
+    //ฟังก์ชั่นสำหรับอ่านข้อมูลแล้วแสดงผลในหน้าจอ popup
+    function loadData(data) {
+        $('#txt_BookCode').val(data.BookCode);
+        $('#txt_BookName').val(data.BookName);
+        $('#sel_BankCode').val(data.BankCode);
+        $('#txt_BankBranch').val(data.BankBranch);
+        $('#sel_ACType').val(data.ACType);
+        $('#chk_IsLocal').prop('checked', (data.IsLocal == 1 ? true : false));
+        //เปลี่ยนค่า header ของหน้าจอ edit แล้วโชว์ popup form
+        var str = 'Edit Data : ';
+        showPopupEditor(str, 'show');
+    }
+	//ฟังก์ชั่นสำหรับอ่านข้อมูลในหน้าจอ popup แล้ว convert เป็น class
+	function getEditorData() {
+		var obj = {
+            BranchCode: '@ViewBag.BranchCode',
+		    BookCode: $('#txt_BookCode').val(),
+		    BookName: $('#txt_BookName').val(),
+		    BankCode: $('#sel_BankCode').val(),
+		    BankBranch: $('#txt_BankBranch').val(),
+		    ACType: $('#sel_ACType').val(),
+		    IsLocal: ($('#chk_IsLocal').prop('checked') ? 1 : 0),
+		    TAddress1: '-',
+		    TAddress2: '-',
+		    EAddress1: '-',
+		    EAddress2: '-',
+		    Phone: '-',
+            FaxNumber:'-'
+		};
+		return obj;
+	}
+    function checkData(data) {
+        var msg = '';
+        if (data.ACType == '') {
+            msg +='<br/>Please choose Account TYpe';
+        }
+        if ($.trim(data.BankBranch) == '') {
+            msg += '<br/>Please input Bank Branch';
+        }
+        if (data.BankCode == '') {
+            msg += '<br/>Please select Bank Code';
+        }
+        if ($.trim(data.BookCode) == '') {
+            msg += '<br/>Please input Book number';
+        }
+        if ($.trim(data.BookName) == '') {
+            msg += '<br/>Please input Account Name';
+        }
+        return msg;
+    }
+    //ฟังก์ชั่นสำหรับ post ข้อมูลไปยัง web service เพื่อ save
+	function saveData(){
+	    var data = getEditorData();
+	    var chk = checkData(data);
+	    if (chk != '') {
+	        bootbox.alert(chk);
+	        return;
+	    }
+		$.post(urlSave,data)
+		.done(function (response) {
+            //ซ่อน popup form แล้ว load grid
+			showPopupEditor('', 'hide');
+			showGrid();
+			bootbox.alert(response);
+		});
+	}
+    //populate combo
+	function loadBankCode() {
+		$.get(urlBankCode)
+        .done(function (data) {
+            if (data.length > 0) {
+                $('#sel_BankCode').empty();
+                for (var i = 0; i < data.length; i++) {
+                    $('#sel_BankCode')
+                    .append($('<option>', { value: data[i].Code })
+                    .text(data[i].BName));
+                }
+            }
+        });
+	}
 </script>
