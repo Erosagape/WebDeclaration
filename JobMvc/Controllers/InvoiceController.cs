@@ -9,13 +9,13 @@ namespace JobMvc.Controllers
     public class InvoiceController : Controller
     {
         // GET: Invoice
-        public ActionResult Invoice()
+        public ActionResult Index()
         {
             return View();
         }
         public ActionResult getDecInvoice_Header()
         {
-            var data = new DecInvoice_Header().get();
+            var data = new DecInvoice_Header().get();            
             return Json(data, JsonRequestBehavior.AllowGet);
         }
     }

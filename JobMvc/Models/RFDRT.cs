@@ -6,10 +6,11 @@ namespace JobMvc
 	public class RFDRT
 	{
 		public const string tbname = "RFDRT";
-		public int oid { get; set; }
 		public string TRFCLS { get; set; }
 		public string TRFSEQ { get; set; }
 		public string DTYCDE { get; set; }
+        public double DTYYRTE { get; set; }
+        public double DTYSPE { get; set; }
 		public string SPECDE { get; set; }
 		public string ANONUM { get; set; }
 		public string ANODES { get; set; }
@@ -23,34 +24,35 @@ namespace JobMvc
 		public DateTime DTECTEAMN { get; set; }
 		public DateTime TMECTEAMN { get; set; }
 
-		public List<RFDRT> get()
+		public List<RFDRT> get(string filter)
 		{
 			var rows = new List<RFDRT>();
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
-				using (var rd = cn.getDataReader("select * from " + tbname))
+				using (var rd = cn.getDataReader("select TRFCLS,TRFSEQ,DTYCDE,SPECDE,DTYYRTE,DTYSPE,PRVCDE from " + tbname + " where TRFCLS like '" + filter +"%'"))
 				{
 					while (rd.Read())
 					{
-						rows.Add(new RFDRT()
-						{
-							oid = rd.GetInt32("oid"),
-							TRFCLS = rd.GetString("TRFCLS"),
-							TRFSEQ = rd.GetString("TRFSEQ"),
-							DTYCDE = rd.GetString("DTYCDE"),
-							SPECDE = rd.GetString("SPECDE"),
-							ANONUM = rd.GetString("ANONUM"),
-							ANODES = rd.GetString("ANODES"),
-							DSCTRS1 = rd.GetString("DSCTRS1"),
-							DSCTRS2 = rd.GetString("DSCTRS2"),
-							UIDCTEAMN = rd.GetString("UIDCTEAMN"),
-							PRVCDE = rd.GetString("PRVCDE"),
-							DTEANO = rd.GetDateTime("DTEANO"),
-							DTESTR = rd.GetDateTime("DTESTR"),
-							DTEFIN = rd.GetDateTime("DTEFIN"),
-							DTECTEAMN = rd.GetDateTime("DTECTEAMN"),
-							TMECTEAMN = rd.GetDateTime("TMECTEAMN")
-						});
+                        RFDRT data = new RFDRT();
+                        
+                        try { data.TRFCLS = rd.GetString("TRFCLS"); } catch {}
+                        try { data.TRFSEQ = rd.GetString("TRFSEQ"); } catch {}
+                        try { data.DTYCDE = rd.GetString("DTYCDE"); } catch {}
+                        try { data.SPECDE = rd.GetString("SPECDE"); } catch {}
+                        try { data.DTYYRTE = rd.GetDouble("DTTYRTE"); } catch { }
+                        try { data.DTYSPE = rd.GetDouble("DTYSPE"); } catch { }
+                        /*try { data.ANONUM = rd.GetString("ANONUM"); } catch {}
+                        try { data.ANODES = rd.GetString("ANODES"); } catch {}
+                        try { data.DSCTRS1 = rd.GetString("DSCTRS1"); } catch {}
+                        try { data.DSCTRS2 = rd.GetString("DSCTRS2"); } catch {}
+                        try { data.UIDCTEAMN = rd.GetString("UIDCTEAMN"); } catch {}                        
+                        try { data.DTEANO = rd.GetDateTime("DTEANO"); } catch {}
+                        try { data.DTESTR = rd.GetDateTime("DTESTR"); } catch {}
+                        try { data.DTEFIN = rd.GetDateTime("DTEFIN"); } catch {}
+                        try { data.DTECTEAMN = rd.GetDateTime("DTECTEAMN"); } catch {}
+                        try { data.TMECTEAMN = rd.GetDateTime("TMECTEAMN"); } catch {}*/
+                        try { data.PRVCDE = rd.GetString("PRVCDE"); } catch {}
+                        rows.Add(data);
 					}
 					rd.Close();
 				}
@@ -61,11 +63,11 @@ namespace JobMvc
 
 		public string save()
 		{
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where TRFCLS='{0}' and TRFSEQ='{1}' and DTYCDE='{2}'", this.TRFCLS,this.TRFSEQ,this.DTYCDE);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -73,10 +75,6 @@ namespace JobMvc
 						if (tb.Rows.Count > 0)
 						{
 							dr = tb.Rows[0];
-						}
-						else
-						{
-							dr["oid"] = 0;
 						}
 						dr["TRFCLS"] = this.TRFCLS;
 						dr["TRFSEQ"] = this.TRFSEQ;
@@ -106,12 +104,12 @@ namespace JobMvc
 			}
 		}
 
-		public string delete(string oid)
+		public string delete(RFDRT data)
 		{
 			string msg = "Delete Success";
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
-				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where oid={0}", oid)) == false)
+				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where TRFCLS='{0}' and TRFSEQ='{1}' and DTYCDE='{2}'", data.TRFCLS,data.TRFSEQ,data.DTYCDE)) == false)
 				{
 					msg = cn.Message;
 				}

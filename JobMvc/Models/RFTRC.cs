@@ -6,7 +6,6 @@ namespace JobMvc
 	public class RFTRC
 	{
 		public const string tbname = "RFTRC";
-		public int oid { get; set; }
 		public string TariffClass { get; set; }
 		public string TariffDescThai { get; set; }
 		public string TariffDescEng { get; set; }
@@ -26,7 +25,6 @@ namespace JobMvc
 					{
 						rows.Add(new RFTRC()
 						{
-							oid = rd.GetInt32("oid"),
 							TariffClass = rd.GetString("TariffClass"),
 							TariffDescThai = rd.GetString("TariffDescThai"),
 							TariffDescEng = rd.GetString("TariffDescEng"),
@@ -49,7 +47,7 @@ namespace JobMvc
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where TariffClass='{0}'", this.TariffClass);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -57,10 +55,6 @@ namespace JobMvc
 						if (tb.Rows.Count > 0)
 						{
 							dr = tb.Rows[0];
-						}
-						else
-						{
-							dr["oid"] = 0;
 						}
 						dr["TariffClass"] = this.TariffClass;
 						dr["TariffDescThai"] = this.TariffDescThai;
@@ -87,7 +81,7 @@ namespace JobMvc
 			string msg = "Delete Success";
 			using (Connection cn = new Connection())
 			{
-				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where oid={0}", oid)) == false)
+				if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where TariffClass='{0}'", oid)) == false)
 				{
 					msg = cn.Message;
 				}

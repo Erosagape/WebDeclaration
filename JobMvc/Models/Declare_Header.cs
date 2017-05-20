@@ -5,11 +5,121 @@ namespace JobMvc
 {
 	public class Declare_Header
 	{
-		public const string tbname = "DecInvoice_Header";
-		public int oid { get; set; }
+		public const string tbname = "Declare_Header";
 		public string BranchCode { get; set; }
 		public string RefNO { get; set; }
-		public string InvNO { get; set; }
+        public string DecNO { get; set; }
+        
+        public string RefJobNO { get; set; }
+        public DateTime DepDate { get; set; }
+        public string BrokerTaxNo { get; set; }
+        public string BrokerBranch { get; set; }
+        public string BrokerName { get; set; }
+        public string BrokerAddr { get; set; }
+        public string CCCard { get; set; }
+        public string CCName { get; set; }
+        public string ManagerNo { get; set; }
+        public string ManagerName { get; set; }
+        public string VesselName { get; set; }
+        public string VoyNo { get; set; }
+        public string TranportMode { get; set; }
+        public string ReleasePort { get; set; }
+        public string LoadedPort { get; set; }
+        public string DestCountry { get; set; }
+        public Double TotalPackageAmt { get; set; }
+        public string TotalPackageUnit { get; set; }
+        public Double TotalGrossW { get; set; }
+        public string WeightUnit { get; set; }
+        public string GWeightUnit { get; set; }
+        public string BankCode { get; set; }
+        public string BankBranch { get; set; }
+        public string BankAccNo { get; set; }
+        public Double TotalPaymentAmt { get; set; }
+        public string CurCode { get; set; }
+        public Double CurRate { get; set; }
+        public Double FOBValueF { get; set; }
+        public Double FOBValueB { get; set; }
+        public string PaymentMethod { get; set; }
+        public string DepositReason { get; set; }
+        public Double TotalTax { get; set; }
+        public Double TotalDeposit { get; set; }
+        public DateTime SendDate { get; set; }
+        public string SendTime { get; set; }
+        public string SendStatus { get; set; }
+        public DateTime AcceptDate { get; set; }
+        public string AcceptTime { get; set; }
+        public string ResponseMsg { get; set; }
+        public string CancelReson { get; set; }
+        public DateTime CancelDate { get; set; }
+        public string CancelTime { get; set; }
+        public string CancelProve { get; set; }
+        public DateTime CancelProveDate { get; set; }
+        public string CancelProveTime { get; set; }
+        public string PayProve { get; set; }
+        public DateTime PayProveDate { get; set; }
+        public string PayProveTime { get; set; }
+        public int IsIncompleted { get; set; }
+        public DateTime UDateRelease { get; set; }
+        public DateTime UDateComp { get; set; }
+        public DateTime UDateReImport { get; set; }
+        public DateTime UDateBorn { get; set; }
+        public DateTime UDate19BIS { get; set; }
+        public DateTime UDateReExport { get; set; }
+        public string InvNOList { get; set; }
+        public Double AssessValue { get; set; }
+        public string UNDGNumber { get; set; }
+        public string EstablishNo { get; set; }
+        public string FactoryNo { get; set; }
+        public string UserTransmit { get; set; }
+        public DateTime TransmitDate { get; set; }
+        public string TransmitTime { get; set; }
+        public int DeclareType { get; set; }
+        public string DocType { get; set; }
+        public string PackingType { get; set; }
+        public string MasterAWB { get; set; }
+        public string HouseAWB { get; set; }
+        public string RGSCode { get; set; }
+        public string CustomBankCode { get; set; }
+        public int isAssessment { get; set; }
+        public int IsInspect { get; set; }
+        public string ApprovalPort { get; set; }
+        public string ApprovalNo { get; set; }
+        public string ShippingMark { get; set; }
+        public string DeclareFormType { get; set; }
+        public int Revised { get; set; }
+        public string Status02 { get; set; }
+        public string Status03 { get; set; }
+        public string Status04 { get; set; }
+        public string RemarkText { get; set; }
+        public string Remark1 { get; set; }
+        public Double TotalPackageAddAmt { get; set; }
+        public string TotalPackageAddUnit { get; set; }
+        public string TotalPackageDesc { get; set; }
+        public int IsNotAutoCal { get; set; }
+        public string OutsideReleasePort { get; set; }
+        public string GuaranteeMethod { get; set; }
+        public string GuaranteeType { get; set; }
+        public string GuaranteeBankCode { get; set; }
+        public string GuaranteeBankBranch { get; set; }
+        public string GuaranteeBankAccNo { get; set; }
+        public string ExportTaxIncentivesID { get; set; }
+        public string TradingPartnerTaxNo { get; set; }
+        public string TradingPartnerTaxBranch { get; set; }
+        public string SubBrokerTaxNo { get; set; }
+        public Double DeferredDutyTaxFee { get; set; }
+        public string TaxCardBankCode { get; set; }
+        public string TaxCardBankBranchCode { get; set; }
+        public string TaxCardAccNo { get; set; }
+        public Double TotalTaxCardAmt { get; set; }
+        public int IsNotAutoCalGW { get; set; }
+        public Double TotalLocal { get; set; }
+        public string Remark2 { get; set; }
+        public string XMLCustRevision { get; set; }
+        public string UpTrack04Status { get; set; }
+        public DateTime ActualReleaseDate { get; set; }
+        public string ConfirmReleaseBy { get; set; }
+        public DateTime ConfirmReleaseDate { get; set; }         
+
 		public string TrackingNO { get; set; }
 		public string CmpCode { get; set; }
 		public string CmpTaxNumber { get; set; }
@@ -76,7 +186,6 @@ namespace JobMvc
 		public int ResponseStatus { get; set; }
 		public int IsCancel { get; set; }
 		public int InvoiceType { get; set; }
-		public int IsNotAutoCal { get; set; }
 		public Double InvCurRate { get; set; }
 		public Double TotalNetW { get; set; }
 		public Double TotalInvoice { get; set; }
@@ -108,121 +217,123 @@ namespace JobMvc
 		public Double TotalIncreasedPrice { get; set; }
 		public Double TotalIncreasedPriceTHB { get; set; }
 
-		public List<DecInvoice_Header> get()
+		public List<Declare_Header> get()
 		{
-			var rows = new List<DecInvoice_Header>();
-			using (Connection cn = new Connection())
+			var rows = new List<Declare_Header>();
+			using (Connection cn = new Connection("cdp1"))
 			{
 				using (var rd = cn.getDataReader("select * from " + tbname))
 				{
 					while (rd.Read())
 					{
-						rows.Add(new DecInvoice_Header()
-						{
-							BranchCode = rd.GetString("BranchCode"),
-							RefNO = rd.GetString("RefNO"),
-							InvNO = rd.GetString("InvNO"),
-							TrackingNO = rd.GetString("TrackingNO"),
-							CmpCode = rd.GetString("CmpCode"),
-							CmpTaxNumber = rd.GetString("CmpTaxNumber"),
-							CmpBranch = rd.GetString("CmpBranch"),
-							SellerStatus = rd.GetString("SellerStatus"),
-							ConsigneeStatus = rd.GetString("ConsigneeStatus"),
-							CommercialLevel = rd.GetString("CommercialLevel"),
-							BuyerCode = rd.GetString("BuyerCode"),
-							BuyerName = rd.GetString("BuyerName"),
-							Street = rd.GetString("Street"),
-							District = rd.GetString("District"),
-							Subprovince = rd.GetString("Subprovince"),
-							Province = rd.GetString("Province"),
-							Postcode = rd.GetString("Postcode"),
-							EmailAddr = rd.GetString("EmailAddr"),
-							ConsigneeAddr = rd.GetString("ConsigneeAddr"),
-							PurchaseCountry = rd.GetString("PurchaseCountry"),
-							NotifyPartyCode = rd.GetString("NotifyPartyCode"),
-							NotifyPartyName = rd.GetString("NotifyPartyName"),
-							NotifyPartyAddr = rd.GetString("NotifyPartyAddr"),
-							NotifyPartyEMail = rd.GetString("NotifyPartyEMail"),
-							CurExpInland = rd.GetString("CurExpInland"),
-							CurExpPack = rd.GetString("CurExpPack"),
-							CurExpFwd = rd.GetString("CurExpFwd"),
-							CurExpShp = rd.GetString("CurExpShp"),
-							CurExpFrg = rd.GetString("CurExpFrg"),
-							CurExpIns = rd.GetString("CurExpIns"),
-							AvgExpOther = rd.GetString("AvgExpOther"),
-							AvgExpInland = rd.GetString("AvgExpInland"),
-							AvgExplanding = rd.GetString("AvgExplanding"),
-							AvgExpFwd = rd.GetString("AvgExpFwd"),
-							DestinationCountry = rd.GetString("DestinationCountry"),
-							IncoTerms = rd.GetString("IncoTerms"),
-							InvCurrency = rd.GetString("InvCurrency"),
-							NetWUnit = rd.GetString("NetWUnit"),
-							CurExpOther = rd.GetString("CurExpOther"),
-							CurExplanding = rd.GetString("CurExplanding"),
-							AvgExpPack = rd.GetString("AvgExpPack"),
-							AvgExpShp = rd.GetString("AvgExpShp"),
-							AvgExpFrg = rd.GetString("AvgExpFrg"),
-							AvgExpIns = rd.GetString("AvgExpIns"),
-							RecByUser = rd.GetString("RecByUser"),
-							UIDTransmit = rd.GetString("UIDTransmit"),
-							SignBy = rd.GetString("SignBy"),
-							FileToSend = rd.GetString("FileToSend"),
-							PoNo = rd.GetString("PoNo"),
-							PaymentTerm = rd.GetString("PaymentTerm"),
-							OtherChargeDesc = rd.GetString("OtherChargeDesc"),
-							SelfCertRemark = rd.GetString("SelfCertRemark"),
-							AEOsReferNo = rd.GetString("AEOsReferNo"),
-							NotifyStreet = rd.GetString("NotifyStreet"),
-							NotifyDistrict = rd.GetString("NotifyDistrict"),
-							NotifySubProvince = rd.GetString("NotifySubProvince"),
-							NotifyProvince = rd.GetString("NotifyProvince"),
-							NotifyPostCode = rd.GetString("NotifyPostCode"),
+                        var data = new Declare_Header();
+                        
+                        try { data.BranchCode = rd.GetString("BranchCode"); } catch { data.BranchCode = ""; }
+                        try { data.RefNO = rd.GetString("RefNO"); } catch { data.RefNO = ""; }
+                        try { data.InvNOList = rd.GetString("InvNO"); } catch { data.InvNOList = ""; }
+                        try { data.DecNO = rd.GetString("DecNO"); } catch { data.DecNO = ""; }
+                        try { data.TrackingNO = rd.GetString("TrackingNO"); } catch { data.TrackingNO = ""; }
+                        try { data.CmpCode = rd.GetString("CmpCode"); } catch { data.CmpCode = ""; }
+                        try { data.CmpTaxNumber = rd.GetString("CmpTaxNumber"); } catch { data.CmpTaxNumber = ""; }
+                        try { data.CmpBranch = rd.GetString("CmpBranch"); } catch { data.CmpBranch = ""; }
+                        try { data.SellerStatus = rd.GetString("SellerStatus"); } catch { data.SellerStatus = ""; }
+                        try { data.ConsigneeStatus = rd.GetString("ConsigneeStatus"); } catch { data.ConsigneeStatus = ""; }
+                        try { data.CommercialLevel = rd.GetString("CommercialLevel"); } catch { data.CommercialLevel = ""; }
+                        try { data.BuyerCode = rd.GetString("BuyerCode"); } catch { data.BuyerCode = ""; }
+                        try { data.BuyerName = rd.GetString("BuyerName"); } catch { data.BuyerName = ""; }
+                        try { data.Street = rd.GetString("Street"); } catch { data.Street = ""; }
+                        try { data.District = rd.GetString("District"); } catch { data.District = ""; }
+                        try { data.Subprovince = rd.GetString("Subprovince"); } catch { data.Subprovince = ""; }
+                        try { data.Province = rd.GetString("Province"); } catch { data.Province = ""; }
+                        try { data.Postcode = rd.GetString("Postcode"); } catch { data.Postcode = ""; }
+                        try { data.EmailAddr = rd.GetString("EmailAddr"); } catch { data.EmailAddr = ""; }
+                        try { data.ConsigneeAddr = rd.GetString("ConsigneeAddr"); } catch { data.ConsigneeAddr = ""; }
+                        try { data.PurchaseCountry = rd.GetString("PurchaseCountry"); } catch { data.PurchaseCountry = ""; }
+                        try { data.NotifyPartyCode = rd.GetString("NotifyPartyCode"); } catch { data.NotifyPartyCode = ""; }
+                        try { data.NotifyPartyName = rd.GetString("NotifyPartyName"); } catch { data.NotifyPartyName = ""; }
+                        try { data.NotifyPartyAddr = rd.GetString("NotifyPartyAddr"); } catch { data.NotifyPartyAddr = ""; }
+                        try { data.NotifyPartyEMail = rd.GetString("NotifyPartyEMail"); } catch { data.NotifyPartyEMail = ""; }
+                        try { data.CurExpInland = rd.GetString("CurExpInland"); } catch { data.CurExpInland = ""; }
+                        try { data.CurExpPack = rd.GetString("CurExpPack"); } catch { data.CurExpPack = ""; }
+                        try { data.CurExpFwd = rd.GetString("CurExpFwd"); } catch { data.CurExpFwd = ""; }
+                        try { data.CurExpShp = rd.GetString("CurExpShp"); } catch { data.CurExpShp = ""; }
+                        try { data.CurExpFrg = rd.GetString("CurExpFrg"); } catch { data.CurExpFrg = ""; }
+                        try { data.CurExpIns = rd.GetString("CurExpIns"); } catch { data.CurExpIns = ""; }
+                        try { data.AvgExpOther = rd.GetString("AvgExpOther"); } catch { data.AvgExpOther = ""; }
+                        try { data.AvgExpInland = rd.GetString("AvgExpInland"); } catch { data.AvgExpInland = ""; }
+                        try { data.AvgExplanding = rd.GetString("AvgExplanding"); } catch { data.AvgExplanding = ""; }
+                        try { data.AvgExpFwd = rd.GetString("AvgExpFwd"); } catch { data.AvgExpFwd = ""; }
+                        try { data.DestinationCountry = rd.GetString("DestinationCountry"); } catch { data.DestinationCountry = ""; }
+                        try { data.IncoTerms = rd.GetString("IncoTerms"); } catch { data.IncoTerms = ""; }
+                        try { data.InvCurrency = rd.GetString("InvCurrency"); } catch { data.InvCurrency = ""; }
+                        try { data.NetWUnit = rd.GetString("NetWUnit"); } catch { data.NetWUnit = ""; }
+                        try { data.CurExpOther = rd.GetString("CurExpOther"); } catch { data.CurExpOther = ""; }
+                        try { data.CurExplanding = rd.GetString("CurExplanding"); } catch { data.CurExplanding = ""; }
+                        try { data.AvgExpPack = rd.GetString("AvgExpPack"); } catch { data.AvgExpPack = ""; }
+                        try { data.AvgExpShp = rd.GetString("AvgExpShp"); } catch { data.AvgExpShp = ""; }
+                        try { data.AvgExpFrg = rd.GetString("AvgExpFrg"); } catch { data.AvgExpFrg = ""; }
+                        try { data.AvgExpIns = rd.GetString("AvgExpIns"); } catch { data.AvgExpIns = ""; }
+                        try { data.RecByUser = rd.GetString("RecByUser"); } catch { data.RecByUser = ""; }
+                        try { data.UIDTransmit = rd.GetString("UIDTransmit"); } catch { data.UIDTransmit = ""; }
+                        try { data.SignBy = rd.GetString("SignBy"); } catch { data.SignBy = ""; }
+                        try { data.FileToSend = rd.GetString("FileToSend"); } catch { data.FileToSend = ""; }
+                        try { data.PoNo = rd.GetString("PoNo"); } catch { data.PoNo = ""; }
+                        try { data.PaymentTerm = rd.GetString("PaymentTerm"); } catch { data.PaymentTerm = ""; }
+                        try { data.OtherChargeDesc = rd.GetString("OtherChargeDesc"); } catch { data.OtherChargeDesc = ""; }
+                        try { data.SelfCertRemark = rd.GetString("SelfCertRemark"); } catch { data.SelfCertRemark = ""; }
+                        try { data.AEOsReferNo = rd.GetString("AEOsReferNo"); } catch { data.AEOsReferNo = ""; }
+                        try { data.NotifyStreet = rd.GetString("NotifyStreet"); } catch { data.NotifyStreet = ""; }
+                        try { data.NotifyDistrict = rd.GetString("NotifyDistrict"); } catch { data.NotifyDistrict = ""; }
+                        try { data.NotifySubProvince = rd.GetString("NotifySubProvince"); } catch { data.NotifySubProvince = ""; }
+                        try { data.NotifyProvince = rd.GetString("NotifyProvince"); } catch { data.NotifyProvince = ""; }
+                        try { data.NotifyPostCode = rd.GetString("NotifyPostCode"); } catch { data.NotifyPostCode = ""; }
 
-							InvDate = rd.GetDateTime("InvDate"),
-							DepartureDate = rd.GetDateTime("DepartureDate"),
-							RecDate = rd.GetDateTime("RecDate"),
-							RecTime = rd.GetDateTime("RecTime"),
-							SignDate = rd.GetDateTime("SignDate"),
-							SignTime = rd.GetDateTime("SignTime"),
+                        try { data.InvDate = rd.GetDateTime("InvDate"); } catch {}
+                        try { data.DepartureDate = rd.GetDateTime("DepartureDate"); } catch {}
+                        try { data.RecDate = rd.GetDateTime("RecDate"); } catch {}
+                        try { data.RecTime = rd.GetDateTime("RecTime"); } catch {}
+                        try { data.SignDate = rd.GetDateTime("SignDate"); } catch {}
+                        try { data.SignTime = rd.GetDateTime("SignTime"); } catch {}
 
-							DocStatus = rd.GetInt32("DocStatus"),
-							AvgExp2Free = rd.GetInt32("AvgExp2Free"),
-							ResponseStatus = rd.GetInt32("ResponseStatus"),
-							IsCancel = rd.GetInt32("IsCancel"),
-							InvoiceType = rd.GetInt32("InvoiceType"),
-							IsNotAutoCal = rd.GetInt32("IsNotAutoCal"),
+                        try { data.DocStatus = rd.GetInt32("DocStatus"); } catch {}
+                        try { data.AvgExp2Free = rd.GetInt32("AvgExp2Free"); } catch {}
+                        try { data.ResponseStatus = rd.GetInt32("ResponseStatus"); } catch {}
+                        try { data.IsCancel = rd.GetInt32("IsCancel"); } catch {}
+                        try { data.InvoiceType = rd.GetInt32("InvoiceType"); } catch {}
+                        try { data.IsNotAutoCal = rd.GetInt32("IsNotAutoCal"); } catch {}
 
-							InvCurRate = rd.GetDouble("InvCurRate"),
-							TotalNetW = rd.GetDouble("TotalNetW"),
-							TotalInvoice = rd.GetDouble("TotalInvoice"),
-							TotalInvTHB = rd.GetDouble("TotalInvTHB"),
-							CurExpOtherRate = rd.GetDouble("CurExpOtherRate"),
-							TotalExpOther = rd.GetDouble("TotalExpOther"),
-							TotalExpOtherTHB = rd.GetDouble("TotalExpOtherTHB"),
-							CurExplandingRate = rd.GetDouble("CurExplandingRate"),
-							TotalExplanding = rd.GetDouble("TotalExplanding"),
-							TotalExplandingTHB = rd.GetDouble("TotalExplandingTHB"),
-							CurExpInlandRate = rd.GetDouble("CurExpInlandRate"),
-							TotalExpInland = rd.GetDouble("TotalExpInland"),
-							TotalExpInlandTHB = rd.GetDouble("TotalExpInlandTHB"),
-							CurExpPackRate = rd.GetDouble("CurExpPackRate"),
-							TotalExpPack = rd.GetDouble("TotalExpPack"),
-							TotalExpPackTHB = rd.GetDouble("TotalExpPackTHB"),
-							CurExpFwdRate = rd.GetDouble("CurExpFwdRate"),
-							TotalExpForward = rd.GetDouble("TotalExpForward"),
-							TotalExpForwardTHB = rd.GetDouble("TotalExpForwardTHB"),
-							CurExpShpRate = rd.GetDouble("CurExpShpRate"),
-							TotalExpShipping = rd.GetDouble("TotalExpShipping"),
-							TotalExpShippingTHB = rd.GetDouble("TotalExpShippingTHB"),
-							CurExpFrgRate = rd.GetDouble("CurExpFrgRate"),
-							TotalExpFreight = rd.GetDouble("TotalExpFreight"),
-							TotalExpFreightTHB = rd.GetDouble("TotalExpFreightTHB"),
-							CurExpInsRate = rd.GetDouble("CurExpInsRate"),
-							TotalExpInsurance = rd.GetDouble("TotalExpInsurance"),
-							TotalExpInsuranceTHB = rd.GetDouble("TotalExpInsuranceTHB"),
-							TotalIncreasedPrice = rd.GetDouble("TotalIncreasedPrice"),
-							TotalIncreasedPriceTHB = rd.GetDouble("TotalIncreasedPriceTHB")
-						});
+                        try { data.InvCurRate = rd.GetDouble("InvCurRate"); } catch {}
+                        try { data.TotalNetW = rd.GetDouble("TotalNetW"); } catch {}
+                        try { data.TotalInvoice = rd.GetDouble("TotalInvoice"); } catch {}
+                        try { data.TotalInvTHB = rd.GetDouble("TotalInvTHB"); } catch {}
+                        try { data.CurExpOtherRate = rd.GetDouble("CurExpOtherRate"); } catch {}
+                        try { data.TotalExpOther = rd.GetDouble("TotalExpOther"); } catch {}
+                        try { data.TotalExpOtherTHB = rd.GetDouble("TotalExpOtherTHB"); } catch {}
+                        try { data.CurExplandingRate = rd.GetDouble("CurExplandingRate"); } catch {}
+                        try { data.TotalExplanding = rd.GetDouble("TotalExplanding"); } catch {}
+                        try { data.TotalExplandingTHB = rd.GetDouble("TotalExplandingTHB"); } catch {}
+                        try { data.CurExpInlandRate = rd.GetDouble("CurExpInlandRate"); } catch {}
+                        try { data.TotalExpInland = rd.GetDouble("TotalExpInland"); } catch {}
+                        try { data.TotalExpInlandTHB = rd.GetDouble("TotalExpInlandTHB"); } catch {}
+                        try { data.CurExpPackRate = rd.GetDouble("CurExpPackRate"); } catch {}
+                        try { data.TotalExpPack = rd.GetDouble("TotalExpPack"); } catch {}
+                        try { data.TotalExpPackTHB = rd.GetDouble("TotalExpPackTHB"); } catch {}
+                        try { data.CurExpFwdRate = rd.GetDouble("CurExpFwdRate"); } catch {}
+                        try { data.TotalExpForward = rd.GetDouble("TotalExpForward"); } catch {}
+                        try { data.TotalExpForwardTHB = rd.GetDouble("TotalExpForwardTHB"); } catch {}
+                        try { data.CurExpShpRate = rd.GetDouble("CurExpShpRate"); } catch {}
+                        try { data.TotalExpShipping = rd.GetDouble("TotalExpShipping"); } catch {}
+                        try { data.TotalExpShippingTHB = rd.GetDouble("TotalExpShippingTHB"); } catch {}
+                        try { data.CurExpFrgRate = rd.GetDouble("CurExpFrgRate"); } catch {}
+                        try { data.TotalExpFreight = rd.GetDouble("TotalExpFreight"); } catch {}
+                        try { data.TotalExpFreightTHB = rd.GetDouble("TotalExpFreightTHB"); } catch {}
+                        try { data.CurExpInsRate = rd.GetDouble("CurExpInsRate"); } catch {}
+                        try { data.TotalExpInsurance = rd.GetDouble("TotalExpInsurance"); } catch {}
+                        try { data.TotalExpInsuranceTHB = rd.GetDouble("TotalExpInsuranceTHB"); } catch {}
+                        try { data.TotalIncreasedPrice = rd.GetDouble("TotalIncreasedPrice"); } catch {}
+                        try { data.TotalIncreasedPriceTHB = rd.GetDouble("TotalIncreasedPriceTHB"); } catch {}
+                        
+                        rows.Add(data);
 					}
 					rd.Close();
 				}
@@ -233,11 +344,11 @@ namespace JobMvc
 
 		public string save()
 		{
-			using (Connection cn = new Connection())
+			using (Connection cn = new Connection("cdp1"))
 			{
 				try
 				{
-					string sql = string.Format("select * from " + tbname + " where oid='{0}'", this.oid);
+					string sql = string.Format("select * from " + tbname + " where BranchCode='{0}' and RefNO='{1}'", this.BranchCode,this.RefNO);
 					using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
 					{
 						var tb = dt.data;
@@ -252,7 +363,8 @@ namespace JobMvc
 						}
 						dr["BranchCode"] = this.BranchCode;
 						dr["RefNO"] = this.RefNO;
-						dr["InvNO"] = this.InvNO;
+						dr["InvNO"] = this.InvNOList;
+                        dr["DecNO"] = this.DecNO;
 						dr["TrackingNO"] = this.TrackingNO;
 						dr["CmpCode"] = this.CmpCode;
 						dr["CmpTaxNumber"] = this.CmpTaxNumber;

@@ -4,4 +4,157 @@
 }
 
 <h2>ใบขนสินค้า</h2>
+<ul class="tab">
+    <li><a href="javascript:void(0)" class="tablinks active" onclick="openTab(event, false)">Header Tab</a></li>
+    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, true)">Detail Tab</a></li>
+</ul>
+<div id="header">
+    <table id="tbl" class="table table-responsive">
+        <thead>
+            <tr>
+                <th>branchCode</th>
+                <th>RefNo</th>
+                <th>DecNo</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div id="detail">
+    <table id="tbMain">
+        <tr>
+            <td>
+                Branch Code :
+                <input type="text" class="form-control" id="txtBranchCode" />
+                <br/>
+                Reference No :
+                <input type="text" id="txtRefNO" class="form-control" />
+                <br/>
+                invoice No :
+                <input type="text" id="txtInvNO" class="form-control" />   
+                <br/>         
+                Declaration No :
+                <input type="text" id="txtDecNo" class="form-control" />
+            </td>
+            <td>
+                <table id="tbInv">
+                    <tr>
+                        <td>
+                            Invoice Date :
+                        </td>
+                        <td>
+                            <input type="text" id="txtInvDate" class="form-control" />
+                        </td>
+                        <td>
+                            Po No :
+                        </td>
+                        <td>
+                            <input type="text" id="txtPoNo" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<style>
+    ul.tab {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
 
+        /* Float the list items side by side */
+        ul.tab li {
+            float: left;
+        }
+
+            /* Style the links inside the list items */
+            ul.tab li a {
+                display: inline-block;
+                color: black;
+                text-align: center;
+                padding: 12px 16px;
+                text-decoration: none;
+                transition: 0.3s;
+                font-size: 14px;
+            }
+
+                /* Change background color of links on hover */
+                ul.tab li a:hover {
+                    background-color: #ddd;
+                }
+
+                /* Create an active/current tablink class */
+                ul.tab li a:focus, .active {
+                    background-color: #ccc;
+                }
+
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+</style>
+<script type="text/javascript">
+    var selectedTab = 1;
+    var path = '@Url.Content("~")';
+    var urlSource = path + 'Declare/getDeclare_Header';
+    $(document).ready(function () {
+        $('#detail').hide();
+        loadGrid();
+    });
+    function loadGrid() {
+        var tb = $('#tbl').DataTable({
+            ajax: {
+                url: urlSource, //web service ที่จะ call ไปดึงข้อมูลมา
+                dataSrc: ''
+            },
+            selected: true, //ให้สามารถเลือกแถวได้
+            columns: [ //กำหนด property ของ header column
+                { data: "BranchCode", title: "Branch" },
+                { data: "RefNO", title: "Reference" },
+                { data: "DecNO", title: "Declare No" },
+            ],
+            destroy: true, //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+        });
+        $('#tbl tbody').on('click', 'tr', function () {
+            $('#tbl tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+            $(this).addClass('selected'); //select row ใหม่
+            var row = tb.row(this).data();
+            $('#txtBranchCode').val(row.BranchCode);
+            $('#txtRefNO').val(row.RefNO);
+            $('#txtInvNO').val(row.InvNO);
+            $('#txtPoNo').val(row.PoNo);
+            $('#txtInvDate').val(row.InvDate);
+            $('#txtDecNo').val(row.DecNO);
+        });
+        $('#tbl tbody').on('dblclick', 'tr', function () {
+            $('#detail').show();
+            $('#header').hide();
+            selectedTab = 1;
+        });
+    }
+    function openTab(e, showdet) {
+        var i, tablinks;
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        e.currentTarget.className += " active";
+        if (showdet == true) {
+            $('#detail').show();
+            $('#header').hide();
+            selectedTab = 1;
+        }
+        else {
+            $('#detail').hide();
+            $('#header').show();
+            selectedTab = 2;
+        }
+    }
+</script>

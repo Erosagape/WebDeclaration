@@ -1,11 +1,12 @@
 using System.Linq;
 using JobMvc.Models;
 using System.Web.Mvc;
-
+using Newtonsoft.Json;
 namespace JobMvc.Controllers
 {
     public class MasterFileController : Controller
     {
+        #region bankcode
         public ActionResult BankCode()
         {
             ViewBag.Title = "Bank Management";
@@ -27,6 +28,8 @@ namespace JobMvc.Controllers
             string msg=new BankCode().delete(oid);
             return Content(msg);
         }
+        #endregion
+        #region BankAccount
         public ActionResult BookAccount()
         {
             ViewBag.Title = "Bank Accounts Management";
@@ -48,5 +51,23 @@ namespace JobMvc.Controllers
             string msg = data.delete();
             return Content(msg);
         }
+        #endregion
+        #region RFDRT
+        public ActionResult RFDRT()
+        {
+            return View();
+        }
+        public ActionResult getRFDRT()
+        {
+            var filter = "";
+            if (Request.QueryString["filter"] != null)
+            {
+                filter = Request.QueryString["filter"].ToString();
+            }
+            var data = new RFDRT().get(filter).ToList();
+            string json = JsonConvert.SerializeObject(data);
+            return Content(json,"application/json",System.Text.UTF8Encoding.UTF8);
+        }
+        #endregion
     }
 }

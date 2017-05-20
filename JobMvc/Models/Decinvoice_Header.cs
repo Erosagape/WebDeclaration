@@ -3,110 +3,124 @@ using System;
 using JobMvc.DataLayer;
 namespace JobMvc
 {
-	public class DecInvoice_Header
-	{
-		public const string tbname = "DecInvoice_Header";
-		public string BranchCode { get; set; }
-		public string RefNO { get; set; }
-		public string InvNO { get; set; }
-		public string TrackingNO { get; set; }
-		public string CmpCode { get; set; }
-		public string CmpTaxNumber { get; set; }
-		public string CmpBranch { get; set; }
-		public string SellerStatus { get; set; }
-		public string ConsigneeStatus { get; set; }
-		public string CommercialLevel { get; set; }
-		public string BuyerCode { get; set; }
-		public string BuyerName { get; set; }
-		public string Street { get; set; }
-		public string District { get; set; }
-		public string Subprovince { get; set; }
-		public string Province { get; set; }
-		public string Postcode { get; set; }
-		public string EmailAddr { get; set; }
-		public string ConsigneeAddr { get; set; }
-		public string PurchaseCountry { get; set; }
-		public string NotifyPartyCode { get; set; }
-		public string NotifyPartyName { get; set; }
-		public string NotifyPartyAddr { get; set; }
-		public string NotifyPartyEMail { get; set; }
-		public string DestinationCountry { get; set; }
-		public string IncoTerms { get; set; }
-		public string InvCurrency { get; set; }
-		public string NetWUnit { get; set; }
-		public string CurExpOther { get; set; }
-		public string CurExplanding { get; set; }
-		public string CurExpInland { get; set; }
-		public string CurExpPack { get; set; }
-		public string CurExpFwd { get; set; }
-		public string CurExpShp { get; set; }
-		public string CurExpFrg { get; set; }
-		public string CurExpIns { get; set; }
-		public string AvgExpOther { get; set; }
-		public string AvgExpInland { get; set; }
-		public string AvgExplanding { get; set; }
-		public string AvgExpFwd { get; set; }
-		public string AvgExpPack { get; set; }
-		public string AvgExpShp { get; set; }
-		public string AvgExpFrg { get; set; }
-		public string AvgExpIns { get; set; }
-		public string RecByUser { get; set; }
-		public string UIDTransmit { get; set; }
-		public string SignBy { get; set; }
-		public string FileToSend { get; set; }
-		public string PoNo { get; set; }
-		public string PaymentTerm { get; set; }
-		public string OtherChargeDesc { get; set; }
-		public string SelfCertRemark { get; set; }
-		public string AEOsReferNo { get; set; }
-		public string NotifyStreet { get; set; }
-		public string NotifyDistrict { get; set; }
-		public string NotifySubProvince { get; set; }
-		public string NotifyProvince { get; set; }
-		public string NotifyPostCode { get; set; }
-		public DateTime? InvDate { get; set; }
-		public DateTime? DepartureDate { get; set; }
-		public DateTime? RecDate { get; set; }
-		public DateTime? RecTime { get; set; }
-		public DateTime? SignDate { get; set; }
-		public DateTime? SignTime { get; set; }
-		public int? DocStatus { get; set; }
-		public int? AvgExp2Free { get; set; }
-		public int? ResponseStatus { get; set; }
-		public int? IsCancel { get; set; }
-		public int? InvoiceType { get; set; }
-		public int? IsNotAutoCal { get; set; }
-		public Double? InvCurRate { get; set; }
-		public Double? TotalNetW { get; set; }
-		public Double? TotalInvoice { get; set; }
-		public Double? TotalInvTHB { get; set; }
-		public Double? CurExpOtherRate { get; set; }
-		public Double? TotalExpOther { get; set; }
-		public Double? TotalExpOtherTHB { get; set; }
-		public Double? CurExplandingRate { get; set; }
-		public Double? TotalExplanding { get; set; }
-		public Double? TotalExplandingTHB { get; set; }
-		public Double? CurExpInlandRate { get; set; }
-		public Double? TotalExpInland { get; set; }
-		public Double? TotalExpInlandTHB { get; set; }
-		public Double? CurExpPackRate { get; set; }
-		public Double? TotalExpPack { get; set; }
-		public Double? TotalExpPackTHB { get; set; }
-		public Double? CurExpFwdRate { get; set; }
-		public Double? TotalExpForward { get; set; }
-		public Double? TotalExpForwardTHB { get; set; }
-		public Double? CurExpShpRate { get; set; }
-		public Double? TotalExpShipping { get; set; }
-		public Double? TotalExpShippingTHB { get; set; }
-		public Double? CurExpFrgRate { get; set; }
-		public Double? TotalExpFreight { get; set; }
-		public Double? TotalExpFreightTHB { get; set; }
-		public Double? CurExpInsRate { get; set; }
-		public Double? TotalExpInsurance { get; set; }
-		public Double? TotalExpInsuranceTHB { get; set; }
-		public Double? TotalIncreasedPrice { get; set; }
-		public Double? TotalIncreasedPriceTHB { get; set; }
-
+    public class DecInvoice_Header
+    {
+        public const string tbname = "DecInvoice_Header";
+        public string BranchCode { get; set; }
+        public string RefNO { get; set; }
+        public string InvNO { get; set; }
+        public string TrackingNO { get; set; }
+        public string CmpCode { get; set; }
+        public string CmpTaxNumber { get; set; }
+        public string CmpBranch { get; set; }
+        public string SellerStatus { get; set; }
+        public string ConsigneeStatus { get; set; }
+        public string CommercialLevel { get; set; }
+        public string BuyerCode { get; set; }
+        public string BuyerName { get; set; }
+        public string Street { get; set; }
+        public string District { get; set; }
+        public string Subprovince { get; set; }
+        public string Province { get; set; }
+        public string Postcode { get; set; }
+        public string EmailAddr { get; set; }
+        public string ConsigneeAddr { get; set; }
+        public string PurchaseCountry { get; set; }
+        public string NotifyPartyCode { get; set; }
+        public string NotifyPartyName { get; set; }
+        public string NotifyPartyAddr { get; set; }
+        public string NotifyPartyEMail { get; set; }
+        public string DestinationCountry { get; set; }
+        public string IncoTerms { get; set; }
+        public string InvCurrency { get; set; }
+        public string NetWUnit { get; set; }
+        public string CurExpOther { get; set; }
+        public string CurExplanding { get; set; }
+        public string CurExpInland { get; set; }
+        public string CurExpPack { get; set; }
+        public string CurExpFwd { get; set; }
+        public string CurExpShp { get; set; }
+        public string CurExpFrg { get; set; }
+        public string CurExpIns { get; set; }
+        public string AvgExpOther { get; set; }
+        public string AvgExpInland { get; set; }
+        public string AvgExplanding { get; set; }
+        public string AvgExpFwd { get; set; }
+        public string AvgExpPack { get; set; }
+        public string AvgExpShp { get; set; }
+        public string AvgExpFrg { get; set; }
+        public string AvgExpIns { get; set; }
+        public string RecByUser { get; set; }
+        public string UIDTransmit { get; set; }
+        public string SignBy { get; set; }
+        public string FileToSend { get; set; }
+        public string PoNo { get; set; }
+        public string PaymentTerm { get; set; }
+        public string OtherChargeDesc { get; set; }
+        public string SelfCertRemark { get; set; }
+        public string AEOsReferNo { get; set; }
+        public string NotifyStreet { get; set; }
+        public string NotifyDistrict { get; set; }
+        public string NotifySubProvince { get; set; }
+        public string NotifyProvince { get; set; }
+        public string NotifyPostCode { get; set; }
+        public DateTime? InvDate { get; set; }
+        public DateTime? DepartureDate { get; set; }
+        public DateTime? RecDate { get; set; }
+        public DateTime? RecTime { get; set; }
+        public DateTime? SignDate { get; set; }
+        public DateTime? SignTime { get; set; }
+        public int? DocStatus { get; set; }
+        public int? AvgExp2Free { get; set; }
+        public int? ResponseStatus { get; set; }
+        public int? IsCancel { get; set; }
+        public int? InvoiceType { get; set; }
+        public int? IsNotAutoCal { get; set; }
+        public Double? InvCurRate { get; set; }
+        public Double? TotalNetW { get; set; }
+        public Double? TotalInvoice { get; set; }
+        public Double? TotalInvTHB { get; set; }
+        public Double? CurExpOtherRate { get; set; }
+        public Double? TotalExpOther { get; set; }
+        public Double? TotalExpOtherTHB { get; set; }
+        public Double? CurExplandingRate { get; set; }
+        public Double? TotalExplanding { get; set; }
+        public Double? TotalExplandingTHB { get; set; }
+        public Double? CurExpInlandRate { get; set; }
+        public Double? TotalExpInland { get; set; }
+        public Double? TotalExpInlandTHB { get; set; }
+        public Double? CurExpPackRate { get; set; }
+        public Double? TotalExpPack { get; set; }
+        public Double? TotalExpPackTHB { get; set; }
+        public Double? CurExpFwdRate { get; set; }
+        public Double? TotalExpForward { get; set; }
+        public Double? TotalExpForwardTHB { get; set; }
+        public Double? CurExpShpRate { get; set; }
+        public Double? TotalExpShipping { get; set; }
+        public Double? TotalExpShippingTHB { get; set; }
+        public Double? CurExpFrgRate { get; set; }
+        public Double? TotalExpFreight { get; set; }
+        public Double? TotalExpFreightTHB { get; set; }
+        public Double? CurExpInsRate { get; set; }
+        public Double? TotalExpInsurance { get; set; }
+        public Double? TotalExpInsuranceTHB { get; set; }
+        public Double? TotalIncreasedPrice { get; set; }
+        public Double? TotalIncreasedPriceTHB { get; set; }
+        public string DeclareNo { get; set; }
+        public string GetDecNo()
+        {
+            string val = "";
+            using (Connection cn = new Connection("cdp1")){
+                using (var rd = cn.getDataReader(String.Format("select * from Declare_header where BranchCode='{0}' and RefNO='{1}' and docstatus<9", this.BranchCode, this.RefNO)))
+                {
+                    if (rd.Read())
+                    {
+                        val = rd["DecNO"].ToString();
+                    }
+                }
+            }
+            return val;
+        }
 		public List<DecInvoice_Header> get()
 		{
 			var rows = new List<DecInvoice_Header>();
@@ -221,7 +235,7 @@ namespace JobMvc
                         data.TotalExpInsuranceTHB = rd.GetDouble("TotalExpInsuranceTHB");
                         data.TotalIncreasedPrice = rd.GetDouble("TotalIncreasedPrice");
                         data.TotalIncreasedPriceTHB = rd.GetDouble("TotalIncreasedPriceTHB");
-                        
+                        data.DeclareNo = data.GetDecNo();
                         rows.Add(data);
 					}
 					rd.Close();
