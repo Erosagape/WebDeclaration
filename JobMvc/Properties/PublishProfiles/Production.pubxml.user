@@ -241,7 +241,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/01/2017 14:00:14</publishTime>
     </File>
     <File Include="bin/JobMvc.dll">
-      <publishTime>05/20/2017 16:46:17</publishTime>
+      <publishTime>06/30/2017 15:52:08</publishTime>
     </File>
     <File Include="bin/ko/Microsoft.Data.Edm.resources.dll">
       <publishTime>02/01/2017 14:00:38</publishTime>
@@ -649,7 +649,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>05/11/2017 12:21:42</publishTime>
     </File>
     <File Include="Views/Invoice/Index.cshtml">
-      <publishTime>05/20/2017 16:46:04</publishTime>
+      <publishTime>06/30/2017 15:36:06</publishTime>
     </File>
     <File Include="Views/Invoice/Invoice.cshtml">
       <publishTime>04/17/2017 16:15:47</publishTime>

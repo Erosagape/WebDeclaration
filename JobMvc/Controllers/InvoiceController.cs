@@ -1,22 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-
+﻿using System.Web.Mvc;
+using JobMvc.DataLayer;
 namespace JobMvc.Controllers
 {
     public class InvoiceController : Controller
     {
-        // GET: Invoice
         public ActionResult Index()
         {
             return View();
         }
-        public ActionResult getDecInvoice_Header()
+        public ActionResult getBranch()
         {
-            var data = new DecInvoice_Header().get();            
-            return Json(data, JsonRequestBehavior.AllowGet);
+            return Json(DBContext.getBranch(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getInvList()
+        {
+            return Json(_Dummy.getInvNo(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getIncoTerm()
+        {
+            return Json(_Dummy.getTermofTrade(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getCurrency()
+        {
+            return Json(DBContext.getCurrency(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getUnit()
+        {
+            return Json(DBContext.getUnit(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getCountry()
+        {
+            return Json(DBContext.getCountry(), JsonRequestBehavior.AllowGet);
         }
     }
 }

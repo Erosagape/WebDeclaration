@@ -200,6 +200,7 @@
     <Compile Include="Controllers\InvoiceController.cs" />
     <Compile Include="Controllers\MasterFileController.cs" />
     <Compile Include="DataLayer\Connection.cs" />
+    <Compile Include="DataLayer\DBContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
