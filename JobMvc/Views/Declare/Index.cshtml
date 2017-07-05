@@ -1,160 +1,1856 @@
-﻿
-@{
-    ViewBag.Title = "Index";
+﻿@{
+    ViewBag.Header = "Invoice";
 }
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/Content/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Scripts/DataTables/datatables.min.css" />
+    <script src="~/Scripts/DataTables/jQuery-2.2.4/jquery-2.2.4.min.js"></script>
+    <script src="~/Scripts/DataTables/datatables.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootbox.js"></script>
+    <script type="text/javascript">
+            var path='@Url.Content("~")';
+            var branchPath =path +'Invoice/getBranch';
+            var docPath =path +'Invoice/getInvList';
+            var incoTermPath = path+'Invoice/getIncoTerm';
+            var currencyPath = path+'Invoice/getCurrency';
+            var countryPath = path+'Invoice/getCountry';
+            var unitPath = path+'Invoice/getUnit';
+            var companyPath = path+'Invoice/getCompany';
+            var consigneePath = path+'Invoice/getConsignee';
+            var commlevelPath = path+'Invoice/getCommLevel';
+            var commstatusPath = path+'Invoice/getCommStatus';
+            var dutycalPath = path+'Invoice/getDutyCalMethod';
 
-<h2>ใบขนสินค้า</h2>
-<ul class="tab">
-    <li><a href="javascript:void(0)" class="tablinks active" onclick="openTab(event, false)">Header Tab</a></li>
-    <li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, true)">Detail Tab</a></li>
-</ul>
-<div id="header">
-    <table id="tbl" class="table table-responsive">
-        <thead>
-            <tr>
-                <th>branchCode</th>
-                <th>RefNo</th>
-                <th>DecNo</th>
-            </tr>
-        </thead>
-    </table>
-</div>
-<div id="detail">
-    <table id="tbMain">
-        <tr>
-            <td>
-                Branch Code :
-                <input type="text" class="form-control" id="txtBranchCode" />
-                <br/>
-                Reference No :
-                <input type="text" id="txtRefNO" class="form-control" />
-                <br/>
-                invoice No :
-                <input type="text" id="txtInvNO" class="form-control" />   
-                <br/>         
-                Declaration No :
-                <input type="text" id="txtDecNo" class="form-control" />
-            </td>
-            <td>
-                <table id="tbInv">
-                    <tr>
-                        <td>
-                            Invoice Date :
-                        </td>
-                        <td>
-                            <input type="text" id="txtInvDate" class="form-control" />
-                        </td>
-                        <td>
-                            Po No :
-                        </td>
-                        <td>
-                            <input type="text" id="txtPoNo" class="form-control" />
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</div>
-<style>
-    ul.tab {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        border: 1px solid #ccc;
-        background-color: #f1f1f1;
-    }
-
-        /* Float the list items side by side */
-        ul.tab li {
-            float: left;
-        }
-
-            /* Style the links inside the list items */
-            ul.tab li a {
-                display: inline-block;
-                color: black;
-                text-align: center;
-                padding: 12px 16px;
-                text-decoration: none;
-                transition: 0.3s;
-                font-size: 14px;
+            var CompanyList={};
+            var DocList={};
+            var CurrencyList={};
+            var UnitList={};
+            var CountryList={};
+            var ConsigneeList={};
+            $(document).ready(function () {
+                loadBranch();
+                loadCompany();
+                loadConsignee();
+                loadInvList();
+                loadIncoTerm();
+                loadCurrencys();
+                loadUnits();
+                loadCountrys();
+                loadDutyCal();
+                loadCommLevel();
+                loadCommStatus();
+                ShowMenu('dInvComm');
+            });
+            function HideMenu()
+            {
+                $('#dInvComm').hide();
+                $('#dInvExp').hide();
+                $('#dInvStatus').hide();
+                $('#dInvCustoms').hide();
+                $('#dInvProd').hide();
+                $('#dInvOther').hide();
             }
+            function ShowMenu(e)
+            {
+                HideMenu();
+                $('#dDetails').hide();
+                $('#' + e).show();
+            }
+            function ShowDetail(e)
+            {
+                HideMenu();
+                $('#dDetails').show();
+                $('#' + e).show();
+            }
+            function loadBranch()
+            {
+                $('#selBranch').empty();
+                $('#selBranch').append($('<option>',{value:""}).text(""));
+                $.get(branchPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        for(var i=0;i< data.length;i++)
+                        {
+                            $('#selBranch')
+                                .append($('<option>', { value: data[i].Code })
+                                .text(data[i].Code + ' / ' + data[i].BrName));
+                        }
+                    }
+                });
+            }
+            function loadCompany()
+            {
+                $('#selCompCode').empty();
+                $('#selCompCode').append($('<option>',{value:-1}).text(""));
+                $.get(companyPath)
+                .done(function(data){
+                    CompanyList=data;
+                    if(data.length>0)
+                    {
+                        for(var i=0;i< data.length;i++)
+                        {
+                            $('#selCompCode')
+                                .append($('<option>', { value: i })
+                                .text(data[i].CustCode +' / ' + data[i].Branch));
+                        }
+                        $('#selCompCode').on('change',function(){
+                            if($('#selCompCode').val()>=0)
+                            {
+                                $('#txtCompBranch').val(CompanyList[$('#selCompCode').val()].Branch);
+                                $('#txtCompTaxID').val(CompanyList[$('#selCompCode').val()].TaxNumber);
+                                $('#txtCompName').val(CompanyList[$('#selCompCode').val()].NameThai);
+                                $('#txtCompID').val(CompanyList[$('#selCompCode').val()].Tax13No);
+                                $('#txtCompAddr1').val(CompanyList[$('#selCompCode').val()].TAddress1);
+                                $('#txtCompAddr2').val(CompanyList[$('#selCompCode').val()].TAddress2);
+                                $('#selCommStatus').val(CompanyList[$('#selCompCode').val()].ConsStatus);
+                                $('#selCommLevel').val(CompanyList[$('#selCompCode').val()].CommLevel);
+                            }
+                            else
+                            {
+                                $('#txtCompBranch').val('');
+                                $('#txtCompTaxID').val('');
+                                $('#txtCompName').val('');
+                                $('#txtCompID').val('');
+                                $('#txtCompAddr1').val('');
+                                $('#txtCompAddr2').val('');
+                                $('#selCommStatus').val('');
+                                $('#selCommLevel').val('');
+                            }
+                        });
+                    }
+                });
+            }
+            function loadDutyCal()
+            {
+                $('#selCalMethod').empty();
+                $('#selCalMethod').append($('<option>',{value:""}).text(""));
+                $.get(dutycalPath)
+                .done(function(data){
+                    if(data!=undefined)
+                    {
+                        $.each(data,function(key,value){
+                            $('#selCalMethod')
+                                .append($('<option>', { value: key })
+                                .text(key +' / ' + value));
+                        });
+                    }
+                });
+            }
+            function loadCommLevel()
+            {
+                $('#selCommLevel').empty();
+                $('#selCommLevel').append($('<option>',{value:""}).text(""));
+                $.get(commlevelPath)
+                .done(function(data){
+                    if(data!=undefined)
+                    {
+                        $.each(data,function(key,value){
+                            $('#selCommLevel')
+                                .append($('<option>', { value: key })
+                                .text(key +' / ' + value));
+                        });
+                    }
+                });
+            }
+            function loadCommStatus()
+            {
+                $('#selCommStatus').empty();
+                $('#selCommStatus').append($('<option>',{value:""}).text(""));
+                $.get(commstatusPath)
+                .done(function(data){
+                    if(data!=undefined)
+                    {
+                        $.each(data,function(key,value){
+                            $('#selCommStatus')
+                                .append($('<option>', { value: key })
+                                .text(key +' / ' + value));
+                        });
+                    }
+                });
+            }
+            function loadInvList()
+            {
+                $.get(docPath)
+                .done(function(data){
+                    DocList=data;
+                    if(DocList.length>0)
+                    {
+                        loadRefNo();
+                        loadInvNo();
+                    }
+                });
+            }
+            function loadConsignee()
+            {
+                $('#selConsCode').empty();
+                $('#selConsCode').append($('<option>',{value:-1}).text(""));
+                $.get(consigneePath)
+                .done(function(data){
+                    ConsigneeList=data;
+                    if(data.length>0)
+                    {
+                        for(var i=0;i< data.length;i++)
+                        {
+                            $('#selConsCode').append($('<option>', { value: i }).text( data[i].Code ));
+                        }
+                        $('#selConsCode').on('change',function(){
+                            if($('#selConsCode').val()>=0)
+                            {
+                                $('#txtConsName').val(ConsigneeList[$('#selConsCode').val()].NameEng);
+                                $('#txtConsAddr1').val(ConsigneeList[$('#selConsCode').val()].Address1);
+                                $('#txtConsAddr2').val(ConsigneeList[$('#selConsCode').val()].Address2);
+                                $('#selConsCountry').val(ConsigneeList[$('#selConsCode').val()].CountryCode).change();
+                                $('#txtConsEmail').val(ConsigneeList[$('#selConsCode').val()].DMailAddress);
+                            }
+                            else
+                            {
+                                $('#txtConsName').val('');
+                                $('#txtConsAddr1').val('');
+                                $('#txtConsAddr2').val('');
+                                $('#selConsCountry').val('');
+			                    $('#txtConsCountry').val('');
+                                $('#txtConsEmail').val('');
+                            }
+                        });
+                    }
+                });
+            }
+            function loadCurrencys()
+            {
+                $.get(currencyPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        CurrencyList=data;
+                        loadCurrency('selCurrency');
+                        loadCurrency('selInvCurrency');
+                        loadCurrency('selShpCurrency');
+                        loadCurrency('selFreCurrency');
+                        loadCurrency('selInsCurrency');
+                        loadCurrency('selFwdCurrency');
+                        loadCurrency('selInlCurrency');
+                        loadCurrency('selLndCurrency');
+                        loadCurrency('selOthCurrency');
+                        loadCurrency('selPacCurrency');
+                    }
+                });
+            }
+            function loadUnits()
+            {
+                $.get(unitPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        UnitList=data;
+                        loadUnit('selWeightUnit','txtWeightUnit');
+                        loadUnit('selPackUnit','txtPackUnit');
+                        loadUnit('selTariffUnit','txtTariffUnit');
+                        loadUnit('selGWUnit','txtGWUnit');
+                        loadUnit('selAddInvUnit','txtAddInvUnit');
+                        loadUnit('selAddPackUnit','txtAddPackUnit');
+                        loadUnit('selInvUnit','txtInvUnit');
+                    }
+                });
+            }
+            function loadUnit(strID,strOBJ)
+            {
+                if(UnitList.length>0)
+                {
+                    $('#' + strID).empty();
+                    $('#' + strID).append($('<option>',{value:""}).text(""));
+                    for(var i=0;i< UnitList.length;i++)
+                    {
+                        $('#' + strID).append($('<option>',{ value : UnitList[i].TName})
+                            .text(UnitList[i].Code)
+                        );
+                    }
 
-                /* Change background color of links on hover */
-                ul.tab li a:hover {
-                    background-color: #ddd;
+                    if(strOBJ!=''){
+                        $('#' + strID).on('change',function(){
+                            $('#'+ strOBJ).val($('#' + strID).val());
+                        });
+                    }
                 }
+            }
+            function loadCountrys()
+            {
+                $.get(countryPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        CountryList=data;
+                        loadCountry('selConsCountry','txtConsCountry');
+                        loadCountry('selFCountry','txtFCountry');
+                        loadCountry('selOCountry','txtOCountry');
+                    }
+                });
+            }
+            function loadCountry(strID,strOBJ)
+            {
+                if(CountryList.length>0)
+                {
+                    $('#' + strID).empty();
+                    $('#' + strID).append($('<option>',{value:""}).text(""));
+                    for(var i=0;i< CountryList.length;i++)
+                    {
+                        $('#' + strID).append($('<option>',{ value : CountryList[i].CountryCode})
+                            .text(CountryList[i].CountryCode)
+                        );
+                    }
 
-                /* Create an active/current tablink class */
-                ul.tab li a:focus, .active {
-                    background-color: #ccc;
+                    if(strOBJ!=''){
+                        $('#' + strID).on('change',function(){
+                    		$('#'+ strOBJ).val('');
+			                for(var i=0;i< CountryList.length;i++)
+			                {
+			                    if(CountryList[i].CountryCode==$('#' + strID).val())
+			                    {
+			                        $('#'+ strOBJ).val(CountryList[i].CountryName);
+			                        break;
+			                    }
+			                }
+                        });
+                    }
                 }
+            }
+            function loadCurrency(strID)
+            {
+                if(CurrencyList.length>0)
+                {
+                    $('#' + strID).empty();
+                    $('#' + strID).append($('<option>',{value:""}).text(""));
+                    for(var i=0;i< CurrencyList.length;i++)
+                    {
+                        $('#' + strID).append($('<option>',{ value : CurrencyList[i].Code})
+                            .text(CurrencyList[i].Code)
+                        );
+                    }
+                }
+            }
+            function loadIncoTerm()
+            {
+                $('#selTermTrade').empty();
+                $('#selTermTrade').append($('<option>',{value:""}).text(""));
+                $.get(incoTermPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        for(var i=0;i< data.length;i++)
+                        {
+                            $('#selTermTrade').append($('<option>', { value: data[i] }).text( data[i]));
+                        }
+                    }
+                });
+            }
+            function loadRefNo()
+            {
+                $('#selRefNo').empty();
+                $('#selRefNo').append($('<option>',{value:""}).text(""));
+                for(var i=0;i< DocList.length;i++)
+                {
+                    $('#selRefNo').append($('<option>', { value:DocList[i].RefNO} )
+                        .text(DocList[i].RefNO));
+                }
+            }
+            function loadInvNo()
+            {
+                $('#selInvNo').empty();
+                $('#selInvNo').append($('<option>',{value:""}).text(""));
+                for(var i=0;i< DocList.length;i++)
+                {
+                    $('#selInvNo').append($('<option>', { value:DocList[i].InvNO} )
+                        .text(DocList[i].InvNO));
+                }
+            }
+            function clearForm()
+            {
+                $('#txtDecNo').val('');
+                $('#txtInvDate').val('');
+                $('#txtPoNo').val('');
+                $('#selBranch').val('');
+                $('#selInvNo').val('');
+                $('#selRefNo').val('');
+                $('#selTermTrade').val('');
+                $('#txtImExDate').val('');
+                $('#selCurrency').val('');
+                $('#txtExchangeRate').val('');
 
-    /* Style the tab content */
-    .tabcontent {
-        display: none;
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        border-top: none;
-    }
-</style>
-<script type="text/javascript">
-    var selectedTab = 1;
-    var path = '@Url.Content("~")';
-    var urlSource = path + 'Declare/getDeclare_Header';
-    $(document).ready(function () {
-        $('#detail').hide();
-        loadGrid();
-    });
-    function loadGrid() {
-        var tb = $('#tbl').DataTable({
-            ajax: {
-                url: urlSource, //web service ที่จะ call ไปดึงข้อมูลมา
-                dataSrc: ''
-            },
-            selected: true, //ให้สามารถเลือกแถวได้
-            columns: [ //กำหนด property ของ header column
-                { data: "BranchCode", title: "Branch" },
-                { data: "RefNO", title: "Reference" },
-                { data: "DecNO", title: "Declare No" },
-            ],
-            destroy: true, //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
-        });
-        $('#tbl tbody').on('click', 'tr', function () {
-            $('#tbl tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
-            $(this).addClass('selected'); //select row ใหม่
-            var row = tb.row(this).data();
-            $('#txtBranchCode').val(row.BranchCode);
-            $('#txtRefNO').val(row.RefNO);
-            $('#txtInvNO').val(row.InvNO);
-            $('#txtPoNo').val(row.PoNo);
-            $('#txtInvDate').val(row.InvDate);
-            $('#txtDecNo').val(row.DecNO);
-        });
-        $('#tbl tbody').on('dblclick', 'tr', function () {
-            $('#detail').show();
-            $('#header').hide();
-            selectedTab = 1;
-        });
-    }
-    function openTab(e, showdet) {
-        var i, tablinks;
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-        e.currentTarget.className += " active";
-        if (showdet == true) {
-            $('#detail').show();
-            $('#header').hide();
-            selectedTab = 1;
-        }
-        else {
-            $('#detail').hide();
-            $('#header').show();
-            selectedTab = 2;
-        }
-    }
-</script>
+                $('#selCompCode').val('');
+                $('#txtCompTaxID').val('');
+                $('#txtCompBranch').val('');
+                $('#txtCompName').val('');
+                $('#txtCompID').val('');
+                $('#txtCompAddr1').val('');
+                $('#txtCompAddr2').val('');
+                $('#selCommStatus').val('');
+                $('#selCommLevel').val('');
+                $('#selConsCode').val('');
+                $('#txtConsName').val('');
+                $('#txtConsAddr1').val('');
+                $('#txtConsAddr2').val('');
+                $('#selConsCountry').val('');
+                $('#txtConsCountry').val('');
+                $('#txtConsEmail').val('');
+
+                $('#txtNetW').val('');
+                $('#txtGrossW').val('');
+                $('#selWeightUnit').val('');
+                $('#txtWeightUnit').val('');
+                $('#txtTotalForeign').val('');
+                $('#txtTotalTHB').val('');
+
+                $('#txtShpCharge').val('');
+                $('#selShpCurrency').val('');
+                $('#txtShpExcRate').val('');
+                $('#txtShpType').val('');
+                $('#txtShpTotal').val('');
+
+                $('#txtFreCharge').val('');
+                $('#selFreCurrency').val('');
+                $('#txtFreExcRate').val('');
+                $('#txtFreType').val('');
+                $('#txtFreTotal').val('');
+
+                $('#txtInsCharge').val('');
+                $('#selInsCurrency').val('');
+                $('#txtInsExcRate').val('');
+                $('#txtInsType').val('');
+                $('#txtInsTotal').val('');
+
+                $('#txtFwdCharge').val('');
+                $('#selFwdCurrency').val('');
+                $('#txtFwdExcRate').val('');
+                $('#txtFwdType').val('');
+                $('#txtFwdTotal').val('');
+
+                $('#txtInlCharge').val('');
+                $('#selInlCurrency').val('');
+                $('#txtInlExcRate').val('');
+                $('#txtInlType').val('');
+                $('#txtInlTotal').val('');
+
+                $('#txtPacCharge').val('');
+                $('#selPacCurrency').val('');
+                $('#txtPacExcRate').val('');
+                $('#txtPacType').val('');
+                $('#txtPacTotal').val('');
+
+                $('#txtLndCharge').val('');
+                $('#selLndCurrency').val('');
+                $('#txtLndExcRate').val('');
+                $('#txtLndType').val('');
+                $('#txtLndTotal').val('');
+
+                $('#txtOthCharge').val('');
+                $('#selOthCurrency').val('');
+                $('#txtOthExcRate').val('');
+                $('#txtOthType').val('');
+                $('#txtOthTotal').val('');
+
+                $('#txtTotalF').val('');
+                $('#txtOtherDetail').val('');
+                $('#txtTotalB').val('');
+                $('#txtTotalExp').val('');
+
+                $('#txtDocStatus').val('');
+                $('#txtRespStatus').val('');
+                $('#txtSaveDate').val('');
+                $('#txtSaveTime').val('');
+                $('#txtSaveBy').val('');
+
+                $('#txtItemNo').val('');
+                $('#txtProdCode').val('');
+                $('#txtProdDescTH').val('');
+                $('#txtProdDescEN').val('');
+                $('#txtProdBrand').val('');
+                $('#txtProdRemark').val('');
+
+                $('#txtTariffCode').val('');
+                $('#txtTariffSeq').val('');
+                $('#txtStatCode').val('');
+                $('#selCalMethod').val('');
+                $('#txtDutyRate').val('');
+                $('#txtCalByState').val('');
+                $('#txtDispense').val('');
+
+                $('#selFCountry').val('');
+                $('#txtFCountry').val('');
+                $('#txtCustomsConst').val('');
+                $('#txtCustomsPCode').val('');
+                $('#txtProductYear').val('');
+
+                $('#selOCountry').val('');
+                $('#txtOCountry').val('');
+                $('#txtMisc1').val('');
+                $('#txtMisc2').val('');
+
+                $('#chkSeperateNo').prop('checked',false);
+                $('#chkIsSample').prop('checked',false);
+                $('#txtSeperateNo').val('');
+
+                $('#txtInvQty').val('');
+                $('#selInvUnit').val('');
+                $('#txtInvUnit').val('');
+                $('#txtPackQty').val('');
+                $('#selPackUnit').val('');
+                $('#txtPackUnit').val('');
+                $('#txtAddPrice').val('');
+
+                $('#txtTariffQty').val('');
+                $('#selTariffUnit').val('');
+                $('#txtTariffUnit').val('');
+                $('#txtUnitPrice').val('');
+                $('#txtTariffAmt').val('');
+                $('#selInvCurrency').val('');
+                $('#txtTotalInv').val('');
+
+                $('#txtWeightItem').val('');
+                $('#txtWeightPackage').val('');
+                $('#txtWeightNet').val('');
+                $('#selGWUnit').val('');
+                $('#txtGWUnit').val('');
+                $('#txtWeightGross').val('');
+                $('#txtFOBPrice').val('');
+
+                $('#txtAddItemPrice').val('');
+                $('#txtItemDesc1').val('');
+                $('#txtItemDesc2').val('');
+
+                $('#txtAddInvQty').val('');
+                $('#selAddInvUnit').val('');
+                $('#txtAddInvUnit').val('');
+                $('#txtAddPackQty').val('');
+                $('#selAddPackUnit').val('');
+                $('#txtAddPackUnit').val('');
+
+                $('#txtFormulaBond19Bis').val('');
+                $('#txtFormulaVersion').val('');
+                $('#txtFormulaTaxID').val('');
+                $('#txtBOINo').val('');
+                $('#txtTransferNo').val('');
+
+                $('#txtItemFrShpC1').val('');
+                $('#txtItemThShpC1').val('');
+                $('#txtItemFrFreC1').val('');
+                $('#txtItemThFreC1').val('');
+                $('#txtItemFrInsC1').val('');
+                $('#txtItemThInsC1').val('');
+                $('#txtItemFrFwdC1').val('');
+                $('#txtItemThFwdC1').val('');
+                $('#txtItemFrInlC1').val('');
+                $('#txtItemThInlC1').val('');
+                $('#txtItemFrPakC1').val('');
+                $('#txtItemThPakC1').val('');
+                $('#txtItemFrLanC1').val('');
+                $('#txtItemThLanC1').val('');
+                $('#txtItemFrOthC1').val('');
+                $('#txtItemThOthC1').val('');
+            }
+			function showForm()
+			{
+			    //searchData();
+			}
+	        function getRowData(tb, e) {
+	            var indexRow = $(e).parents('tr');
+	            return $(tb).DataTable().row(indexRow).data();
+	        }
+			function JSDate(jsonDateString){
+			    try
+                {
+                    var jsDate=new Date(parseInt(jsonDateString.replace('/Date(', '')));
+	                var month = jsDate.getMonth() + 1;
+	                var day = jsDate.getDate();
+	                var year = jsDate.getFullYear();
+	                if (month<=9) month = '0' + month;
+	                if (day<= 9) day = '0' + day;
+	                var date = year + "-" + month + "-" + day;
+	                return date;
+			    }
+			    catch(e)
+			    {
+			        return '';
+			    }
+			}
+            function searchCurrency() {
+                $('#tbLOV').DataTable({
+                    ajax : {
+                        url: currencyPath, dataSrc:''
+                    },
+                    selected:true,
+                    columns:[
+                        { data: null ,title:"#"},
+                        { data: "Code", title: "รหัส" },
+                        { data: "TName", title: "ชื่อ" }
+                    ],
+                    "columnDefs": [
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>Select</button>";
+                                return html;
+                            }
+                        }
+                    ],
+                    destroy: true
+                });
+                $('#tbLOV tbody').on('click', 'tr', function () {
+                    $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+                $('#tbLOV tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbLOV', this);
+                    $('#selCurrency').val(dt.Code);
+                    $('#modalSearch').modal('hide');
+                });
+                $('#modalSearch').modal('show');
+            }
+            function searchConsignee() {
+                $('#tbLOV').DataTable({
+                    ajax : {
+                        url: consigneePath, dataSrc:''
+                    },
+                    selected:true,
+                    columns:[
+                        { data: null ,title:"#"},
+                        { data: "Code", title: "รหัส" },
+                        { data: "NameEng", title: "ชื่อ" }
+                    ],
+                    "columnDefs": [
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>"+ data.TaxNumber+"</button>";
+                                return html;
+                            }
+                        }
+                    ],
+                    destroy: true
+                });
+                $('#tbLOV tbody').on('click', 'tr', function () {
+                    $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+                $('#tbLOV tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbLOV', this);
+                    for(var i=0;i< ConsigneeList.length;i++)
+                    {
+                        if(ConsigneeList[i].Code==dt.Code)
+                        {
+                            $('#selConsCode').val(i).change();
+                            break;
+                        }
+                    }
+                    $('#modalSearch').modal('hide');
+                });
+                $('#modalSearch').modal('show');
+            }
+			function searchCompany() {
+			    $('#tbLOV').DataTable({
+			        ajax : {
+			            url: companyPath, dataSrc:''
+			        },
+			        selected:true,
+			        columns:[
+                        { data: null ,title:"#"},
+                        { data: "CustCode", title: "รหัส" },
+                        { data: "NameThai", title: "ชื่อ" }
+			        ],
+			        "columnDefs": [
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>"+ data.TaxNumber+"</button>";
+                                return html;
+                            }
+                        }
+                    ],
+                    destroy: true
+		        });
+                $('#tbLOV tbody').on('click', 'tr', function () {
+                    $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+	            $('#tbLOV tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbLOV', this);
+                    for(var i=0;i< CompanyList.length;i++)
+                    {
+                        if(CompanyList[i].CustCode==dt.CustCode)
+                        {
+                            $('#selCompCode').val(i).change();
+                            break;
+                        }
+                    }
+                    $('#modalSearch').modal('hide');
+                });
+			    $('#modalSearch').modal('show');
+			}
+		    function searchInv() {
+		        $('#tbInv').DataTable({
+		            ajax: {
+		                url: docPath, //web service ที่จะ call ไปดึงข้อมูลมา
+		                dataSrc: ''
+		            },
+		            selected: true, //ให้สามารถเลือกแถวได้
+		            columns: [ //กำหนด property ของ header column
+		                { data: null ,title:"#"},
+		                { data: "RefNO", title: "Ref No" },
+		                { data: "InvNO", title: "Inv No" },
+			            { data: null, title: "Inv Date"},
+			            { data: null, title: "Inv Owner"},
+			            { data: "CmpTaxNumber", title:"Tax Number"},
+                        { data: "BuyerName", title:"Buyer name"}
+		            ],
+		            "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
+		                {
+		                    "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+		                    "data": null,
+		                    "render": function (data, type, full, meta) {
+		                        var html = "<button class='btn btn-warning'>Select</button>";
+		                        return html;
+		                    }
+		                },
+                        {
+                            "targets": 3, //column ที่ 3
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html=JSDate(data.InvDate);
+                                return html;
+                            }
+                        },
+			            {
+                            "targets": 4, //column ที่ 4
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html=data.CmpCode +' / '+ data.CmpBranch;
+                                return html;
+                            }
+			            }
+		            ],
+		            destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+		        });
+		        $('#tbInv tbody').on('click', 'tr', function () {
+		            $('#tbInv tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+		            $(this).addClass('selected'); //select row ใหม่
+		        });
+		        $('#tbInv tbody').on('click', 'button', function () {
+		            var dt = getRowData('#tbInv', this);
+
+			        $('#selBranch').val(dt.BranchCode);
+		            $('#selInvNo').val(dt.InvNO);
+			        $('#selRefNo').val(dt.RefNO);
+			        $('#txtInvNo').val(dt.InvNO);
+			        $('#txtDecNo').val(dt.TrackingNO);
+			        $('#txtInvDate').val(JSDate(dt.InvDate));
+			        $('#txtPoNo').val(dt.PoNo);
+			        $('#selTermTrade').val(dt.PaymentTerm);
+			        $('#txtImExDate').val(JSDate(dt.DepartureDate));
+
+                    $('#selCurrency').val(dt.InvCurrency);
+			        $('#txtExchangeRate').val(dt.InvCurRate);
+
+			        var custIndex=-1;
+	                for(var i=0;i< CompanyList.length;i++)
+	                {
+	                    if(CompanyList[i].CustCode==dt.CmpCode)
+	                    {
+	                        custIndex=i;
+	                        break;
+	                    }
+	                }
+			        if(custIndex>=0)
+                    {
+		                $('#selCompCode').val(custIndex).change();
+			        }
+			        $('#txtCompTaxID').val(dt.CmpTaxNumber);
+                    $('#txtCompBranch').val(dt.CmpBranch);
+                    $('#selCommStatus').val(dt.SellerStatus);
+                    $('#selCommLevel').val(dt.CommercialLevel);
+
+			        custIndex=-1;
+			        for(var i=0;i< ConsigneeList.length;i++)
+                    {
+                        if(ConsigneeList[i].Code==dt.BuyerCode)
+                        {
+                            custIndex=i;
+                            break;
+                        }
+                    }
+                    if(custIndex>=0)
+                    {
+                        $('#selConsCode').val(custIndex).change();
+                    }
+					$('#txtConsName').val(dt.BuyerName);
+					$('#txtConsAddr1').val(dt.Street + ' ' + dt.District);
+					$('#txtConsAddr2').val(dt.Province + ' ' + dt.Postcode);
+					$('#selConsCountry').val(dt.PurchaseCountry).change();
+					$('#txtConsEmail').val(dt.EmailAddr);
+
+	                $('#txtNetW').val(dt.TotalNetW);
+	                $('#txtGrossW').val(dt.TotalNetW);
+	                $('#selWeightUnit').val(dt.NetWUnit).change();
+	                $('#txtTotalForeign').val(dt.TotalInvoice);
+	                $('#txtTotalTHB').val(dt.TotalInvTHB);
+
+		            $('#modalInv').modal('hide');
+		        });
+		        $('#modalInv').modal('show');
+		    }
+    </script>
+</head>
+<body>
+    <h1>Commercial Invoices</h1>
+    <div id="MainForm">
+        <table id="tbMain" border="1" width="100%">
+            <tr style="height:100%;width:100%">
+                <td height="100%" width="15%" style="background-color:cornflowerblue">
+                    <table id="tbMenu" width="100%">
+                        <tr>
+                            <td>สาขา :</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <!--<input type="text" class="form-control" value="00 / สำนักงานใหญ่"= id="txtBranchCode" />-->
+                                <select id="selBranch" class="form-control dropdown"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                เลขที่อ้างอิง :
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <!--<input type="text" id="txtRefNO" value="DAJD000000001" class="form-control" />-->
+                                <select id="selRefNo" class="form-control dropdown"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                เลขที่อินวอย :
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <!--<input type="text" id="txtInvNO" value="2017/0343" class="form-control" />-->
+                                <select id="selInvNo" class="form-control dropdown"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                เลขที่ใบขนสินค้า :
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" id="txtDecNo" value="" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table id="tbSubMenu1" border="1" style="background-color:darkcyan;width:100%">
+                                    <tr>
+                                        <td>Header Info :</td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnCommon" class="btn btn-default" style="width:100%" onclick="ShowMenu('dInvComm')">ข้อมูลอินวอย</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnExpense" class="btn btn-default" style="width:100%" onclick="ShowMenu('dInvExp')">ค่าใช้จ่าย</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnStatus" class="btn btn-default" style="width:100%" onclick="ShowMenu('dInvStatus')">สถานะ</button></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table id="tbSubMenu2" border="1" style="background-color:darkcyan;width:100%">
+                                    <tr>
+                                        <td>Detail Info :</td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnCustoms" class="btn btn-default" style="width:100%" onclick="ShowDetail('dInvCustoms')">ข้อมูลกรมศุล</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnProduct" class="btn btn-default" style="width:100%" onclick="ShowDetail('dInvProd')">ข้อมูลสินค้า</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button id="btnOthers" class="btn btn-default" style="width:100%" onclick="ShowDetail('dInvOther')">ข้อมูลอื่นๆ</button></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td height="100%" width="85%" style="background-color:aliceblue">
+                    <div id="dInvComm">
+                        <h4>ข้อมูลอินวอย</h4>
+                        <table id="tbInvComm" width="100%">
+                            <tr>
+                                <td>
+                                    <table id="tbInvComm1" style="width:100%">
+                                        <tr>
+                                            <td>
+                                                <button type="button" id="btnGetInv" onclick="searchInv()">ค้นหา</button>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtInvNo" />
+                                            </td>
+                                            <td>
+                                                วันที่อินวอย :
+                                            </td>
+                                            <td>
+                                                <input type="date" id="txtInvDate" class="form-control" />
+                                            </td>
+                                            <td>
+                                                เลขที่ใบสั่งซื้อ :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtPoNo" class="form-control" />
+                                            </td>
+                                            <td>
+                                                เงื่อนไขทางการค้า :
+                                            </td>
+                                            <td>
+                                                <!--<input type="text" id="txtTermofTrade" value="D/T" class="form-control" />-->
+                                                <select id="selTermTrade" class="form-control dropdown"></select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm2">
+                                        <tr>
+                                            <td>
+                                                วันที่นำเข้าส่งออก :
+                                            </td>
+                                            <td>
+                                                <input type="date" id="txtImExDate" class="form-control" />
+                                            </td>
+                                            <td>สกุลเงิน : </td>
+                                            <td>
+                                                <!--<input type="text" id="txtCurrencyCode" value="USD" class="form-control" />-->
+                                                <select id="selCurrency" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>อัตราแลกเปลี่ยน : </td>
+                                            <td>
+                                                <input type="number" id="txtExchangeRate" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <button id="btnGetCurr" onclick="searchCurrency()">...</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm3">
+                                        <tr>
+                                            <td>ผู้นำเข้าส่งออก :</td>
+                                            <td>
+                                                <!--<input type="text" id="txtCompCode" value="KGM" class="form-control" />-->
+                                                <select id="selCompCode" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>เลขประจำตัวผู้เสียภาษี :</td>
+                                            <td>
+                                                <input type="text" id="txtCompTaxID" class="form-control" />
+                                            </td>
+                                            <td>สาขา :</td>
+                                            <td>
+                                                <input type="text" id="txtCompBranch" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <button id="btnGetComp" onclick="searchCompany()">...</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm4" style="width:100%">
+                                        <tr>
+                                            <td>
+                                                ชื่อผู้นำเข้าส่งออก :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtCompName" style="width:100%" class="form-control" />
+                                            </td>
+                                            <td>
+                                                รหัส :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtCompID" class="form-control" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm5" style="width:100%">
+                                        <tr style="width:100%">
+                                            <td>
+                                                ที่อยู่ :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtCompAddr1" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                        <tr style="width:100%">
+                                            <td></td>
+                                            <td>
+                                                <input type="text" id="txtCompAddr2" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm6">
+                                        <tr>
+                                            <td>
+                                                สถานะ :
+                                            </td>
+                                            <td>
+                                                <!--<input type="text" id="txtCompStatus" value="BR / Broker" class="form-control" />-->
+                                                <select id="selCommStatus" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>ระดับทางการค้า :</td>
+                                            <td>
+                                                <!--<input type="text" id="txtCompLevel" value="WO / Wholeseller" class="form-control" />-->
+                                                <select id="selCommLevel" class="form-control dropdown"></select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm7">
+                                        <tr>
+                                            <td>ผู้ซื้อขายต่างประเทศ :</td>
+                                            <td>
+                                                <!--<input type="text" id="txtConsCode" value="META" class="form-control" />-->
+                                                <select id="selConsCode" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>ชื่อ :</td>
+                                            <td>
+                                                <input type="text" id="txtConsName" class="form-control" style="width:100%" />
+                                            </td>
+                                            <td>
+                                                <button id="btnGetCons" onclick="searchConsignee()">...</button>
+                                            </td>
+                                            <td>
+                                                <button id="btnCopyCons">C</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm8" style="width:100%">
+                                        <tr>
+                                            <td>
+                                                ที่อยู่ :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtConsAddr1" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <input type="text" id="txtConsAddr2" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm9">
+                                        <tr>
+                                            <td>
+                                                รหัสประเทศ :
+                                            </td>
+                                            <td>
+                                                <!--<input type="text" id="txtConsCountry" value="JP / JAPAN" class="form-control" />-->
+                                                <select id="selConsCountry" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtConsCountry" class="form-control" />
+                                            </td>
+                                            <td>E-mail : </td>
+                                            <td>
+                                                <input type="text" id="txtConsEmail" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm10">
+                                        <tr>
+                                            <td>
+                                                Net Weight :
+                                                <input type="number" id="txtNetW" class="form-control" />
+                                            </td>
+                                            <td>
+                                                Gross Weight :
+                                                <input type="number" id="txtGrossW" class="form-control" />
+                                            </td>
+                                            <td>
+                                                Unit :
+                                                <select id="selWeightUnit" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>
+                                                <br />
+                                                <input type="text" id="txtWeightUnit" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <br />
+                                                <input type="button" value="Average" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Total Invoice</td>
+                                            <td>
+                                                <input type="text" id="txtTotalForeign" class="form-control" />
+                                            </td>
+                                            <td>Total (THB)</td>
+                                            <td>
+                                                <input type="text" id="txtTotalTHB" class="form-control" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="dInvExp">
+                        <table id="tbInvExp" width="100%">
+                            <tr>
+                                <td>
+                                    <h4>ค่าใช้จ่ายต่างๆ</h4>
+                                    <table id="txtInvExpense" border="1" class="table table-responsive" style="background-color:white">
+                                        <thead>
+                                            <tr>
+                                                <th>ค่าใช้จ่าย</th>
+                                                <th>จำนวนเงิน</th>
+                                                <th>สกุลเงิน</th>
+                                                <th>อัตราแลกเปลี่ยน</th>
+                                                <th>คำนวณตาม</th>
+                                                <th>มูลค่าสุทธิ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Shipping Charge</td>
+                                                <td><input type="number" id="txtShpCharge" /></td>
+                                                <td><select id="selShpCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtShpExcRate" /></td>
+                                                <td><input type="text" id="txtShpType" /></td>
+                                                <td><input type="number" id="txtShpTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Freight Charge</td>
+                                                <td><input type="number" id="txtFreCharge" /></td>
+                                                <td><select id="selFreCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtFreExcRate" /></td>
+                                                <td><input type="text" id="txtFreType" /></td>
+                                                <td><input type="number" id="txtFreTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Insurance Charge</td>
+                                                <td><input type="number" id="txtInsCharge" /></td>
+                                                <td><select id="selInsCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtInsExcRate" /></td>
+                                                <td><input type="text" id="txtInsType" /></td>
+                                                <td><input type="number" id="txtInsTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Forwarding Charge</td>
+                                                <td><input type="number" id="txtFwdCharge" /></td>
+                                                <td><select id="selFwdCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtFwdExcRate" /></td>
+                                                <td><input type="text" id="txtFwdType" /></td>
+                                                <td><input type="number" id="txtFwdTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>In-land Charge</td>
+                                                <td><input type="number" id="txtInlCharge" /></td>
+                                                <td><select id="selInlCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtInlExcRate" /></td>
+                                                <td><input type="text" id="txtInlType" /></td>
+                                                <td><input type="number" id="txtInlTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Packing Charge</td>
+                                                <td><input type="number" id="txtPacCharge" /></td>
+                                                <td><select id="selPacCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtPacExcRate" /></td>
+                                                <td><input type="text" id="txtPacType" /></td>
+                                                <td><input type="number" id="txtPacTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Landing Charge</td>
+                                                <td><input type="number" id="txtLndCharge" /></td>
+                                                <td><select id="selLndCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtLndExcRate" /></td>
+                                                <td><input type="text" id="txtLndType" /></td>
+                                                <td><input type="number" id="txtLndTotal" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Others Charge</td>
+                                                <td><input type="number" id="txtOthCharge" /></td>
+                                                <td><select id="selOthCurrency" class="form-control dropdown"></select></td>
+                                                <td><input type="number" id="txtOthExcRate" /></td>
+                                                <td><input type="text" id="txtOthType" /></td>
+                                                <td><input type="number" id="txtOthTotal" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <h5>คำนวณตาม P:Price W:Weight M:Manual</h5><input type="checkbox" id="chkCalSample">เฉลี่ยค่าใช้จ่ายในของแถม
+                                    <p>
+                                        ยอดรวมเพิ่มราคา(F) : <input type="number" id="txtTotalF" />&nbsp;&nbsp;
+                                        รายละเอียดค่าใช้จ่ายอื่น : <input type="text" id="txtOtherDetail" value="" />
+                                    </p>
+                                    <p>
+                                        ยอดรวมเพิ่มราคา(B) : <input type="number" id="txtTotalB" />&nbsp;&nbsp;
+                                        รวมยอดค่าใช้จ่าย : <input type="text" id="txtTotalExp" />
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="dInvStatus">
+                        <table id="tbInvStatus" width="100%">
+                            <tr>
+                                <td>
+                                    <h4>สถานะเอกสาร</h4>
+                                    <table id="tblStatus" border="1" style="background-color:white;width:100%">
+                                        <tr>
+                                            <td>สถานะเอกสาร</td>
+                                            <td><input type="text" id="txtDocStatus" /></td>
+                                            <td>สถานะตอบกลับ</td>
+                                            <td><input type="text" id="txtRespStatus" /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                วันที่บันทึกข้อมูล
+                                            </td>
+                                            <td>
+                                                <input type="date" id="txtSaveDate" />
+                                                <input type="text" id="txtSaveTime" />
+                                            </td>
+                                            <td>โดย</td>
+                                            <td><input type="text" id="txtSaveBy" /></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div id="dDetails">
+                        <h4>ข้อมูลสินค้า</h4>
+                        <div id="dProducts">
+                            <table id="tblProducts" style="background-color:lightblue;width:100%;height:100%" border="1">
+                                <tr>
+                                    <td height="100%">
+                                        <table id="tbProduct1">
+                                            <tr>
+                                                <td>
+                                                    ลำดับที่ :
+                                                </td>
+                                                <td>
+                                                    รหัสสินค้า :
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" id="txtItemNo" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtProdCode" />
+                                                </td>
+                                                <td>
+                                                    <button id="blnBrowseProduct">...</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbProduct2" width="100%">
+                                            <tr>
+                                                <td>
+                                                    รายละเอียดสินค้า (ไทย) :
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" id="txtProdDescTH" style="width:100%" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    รายละเอียดสินค้า (English) :
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" id="txtProdDescEN" style="width:100%" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbProduct3">
+                                            <tr>
+                                                <td>
+                                                    Brand :
+                                                </td>
+                                                <td>
+                                                    หมายเหตุ :
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" id="txtProdBrand" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtProdRemark" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td height="100%">
+                                        รายการสินค้า<br />
+                                        <table id="tbProductList" border="1" class="table table-responsive" style="height:100%;background-color:white">
+                                            <thead>
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>ส่วนประกอบทำด้วยพลาสติก</td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div id="dBtnDetails">
+                                <table id="tblDetailsBtn" style="background-color:cornflowerblue" width="100%">
+                                    <tr>
+                                        <td>
+                                            <button id="btnDown" class="btn btn-primary">เลื่อนรายการลง</button>
+                                        </td>
+                                        <td>
+                                            <button id="btnUp" class="btn btn-primary">เลื่อนรายการขึ้น</button>
+                                        </td>
+                                        <td>
+                                            <button id="btnRemark" class="btn btn-warning">บันทึกเพิ่มเติม</button>
+                                        </td>
+                                        <td>
+                                            <button id="btnSaveLine" class="btn btn-success">บันทึกรายการ</button>
+                                        </td>
+                                        <td>
+                                            <button id="btnDeleteLine" class="btn btn-danger">ลบรายการ</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="dInvCustoms">
+                            <h4>ข้อมูลพิธีการ</h4>
+                            <table id="tbInvCustoms">
+                                <tr>
+                                    <td>
+                                        <table id="tbCustoms1">
+                                            <tr>
+                                                <td>
+                                                    พิกัดศุลกากร
+                                                </td>
+                                                <td>
+                                                    ลำดับอากร
+                                                </td>
+                                                <td>รหัสสถิติ</td>
+                                                <td></td>
+                                                <td>วิธีคำนวณอากร</td>
+                                                <td>อากร (%)</td>
+                                                <td>ตามสภาพ</td>
+                                                <td>ลดหย่อน</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="text" id="txtTariffCode" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtTariffSeq" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtStatCode" />
+                                                </td>
+                                                <td>
+                                                    <button id="btnGetTariff">...</button>
+                                                </td>
+                                                <td>
+                                                    <!--<input type="text" id="txtCalMethod" value="Q / Qualtity"/>  -->
+                                                    <select id="selCalMethod" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="txtDutyRate" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="txtCalByState" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="txtDispense" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbCustoms2">
+                                            <tr>
+                                                <td>
+                                                    รหัสประเทศผู้ซื้อ
+                                                </td>
+                                                <td>
+                                                    ชื่อประเทศผู้ซื้อ
+                                                </td>
+                                                <td>ค่าคงที่ศุลกากร</td>
+                                                <td>รหัสสินค้ากรมศุล</td>
+                                                <td>ปีสินค้า</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <select id="selFCountry" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <button id="btnBrowseFCountry">...</button>
+                                                    <input type="text" id="txtFCountry" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtCustomsConst" />
+                                                    <button id="btnBrowseCustomsConst">...</button>
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtCustomsPCode" />
+                                                    <button id="btnBrowseCustomsPCode">...</button>
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtProductYear" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbCustoms3">
+                                            <tr>
+                                                <td>
+                                                    รหัสประเทศผู้กำเนิด
+                                                </td>
+                                                <td>
+                                                    ชื่อประเทศกำเนิด
+                                                </td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <select id="selOCountry" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <button id="btnBrowseOCountry">...</button>
+                                                    <input type="text" id="txtOCountry" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtMisc1" value="" />
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="txtMisc2" value="" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbCustoms4">
+                                            <tr>
+                                                <td>
+                                                    <button id="btnShippingMask">Shipping Mark</button>
+                                                </td>
+                                                <td>
+                                                    <button id="btnCopyAll">เหมือนกันทุกรายการ</button>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox" id="chkSeperateNo" />แยกรายการในใบขนสินค้าลำดับที่
+                                                    <input type="text" id="txtSeperateNo" />
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox" id="chkIsSample" />เป็นของแถม
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="dInvProd">
+                            <h4>ข้อมูลจำเพาะ</h4>
+                            <table id="tbInvProd">
+                                <tr>
+                                    <td>
+                                        <table id="tbInvItem1" style="width:100%">
+                                            <tr>
+                                                <td width="15%">ปริมาณตาม Invoice</td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="20%"></td>
+                                                <td width="15%">
+                                                    จำนวนหีบห่อ
+                                                </td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="15%"></td>
+                                                <td width="15%">เพิ่มราคา (THB)</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtInvQty" />
+                                                </td>
+                                                <td>
+                                                    <select id="selInvUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtInvUnit" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtPackQty" />
+                                                </td>
+                                                <td>
+                                                    <select id="selPackUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtPackUnit" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtAddPrice" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbInvItem2" style="width:100%">
+                                            <tr>
+                                                <td width="15%">ปริมาณตามพิกัด</td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="20%"></td>
+                                                <td width="15%">ราคาต่อหน่วย</td>
+                                                <td width="20%">มูลค่าตามอินวอยซ์</td>
+                                                <td width="8%">สกุลเงิน</td>
+                                                <td width="12%">มูลค่ารายการ (THB)</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtTariffQty" />
+                                                </td>
+                                                <td>
+                                                    <select id="selTariffUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtTariffUnit" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtUnitPrice" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtTariffAmt" />
+                                                </td>
+                                                <td>
+                                                    <select id="selInvCurrency" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtTotalInv" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbInvItem3" style="width:100%">
+                                            <tr>
+                                                <td width="15%">น้ำหนักตอหน่วย</td>
+                                                <td width="15%">น้ำหนักหีบห่อ</td>
+                                                <td width="15%">น้ำหนักสุทธิ</td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="20%"></td>
+                                                <td width="10%">น้ำหนักรวม</td>
+                                                <td width="15%">ราคา FOB/CIF</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtWeightItem" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtWeightPackage" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtWeightNet" />
+                                                </td>
+                                                <td>
+                                                    <select id="selGWUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtGWUnit" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtWeightGross" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtFOBPrice" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbInvItem4" style="width:100%">
+                                            <tr>
+                                                <td>เพิ่มราคา</td>
+                                                <td>ลักษณะสินค้า1</td>
+                                                <td>ลักษณะสินค้า2</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="20%">
+                                                    <input type="number" style="width:95%" id="txtAddItemPrice" />
+                                                </td>
+                                                <td width="40%">
+                                                    <input type="text" style="width:95%" id="txtItemDesc1" />
+                                                </td>
+                                                <td width="40%">
+                                                    <input type="number" style="width:95%" id="txtItemDesc2" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table id="tbInvItem5">
+                                            <tr>
+                                                <td width="15%">ปริมาน Inv เพิ่มเติม</td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="25%"></td>
+                                                <td width="15%">ปริมาณหีบห่อเพิ่มเติม</td>
+                                                <td width="10%">หน่วย</td>
+                                                <td width="25%"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtAddInvQty" />
+                                                </td>
+                                                <td>
+                                                    <select id="selAddInvUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtAddInvUnit" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" style="width:95%" id="txtAddPackQty" />
+                                                </td>
+                                                <td>
+                                                    <select id="selAddPackUnit" style="width:95%" class="form-control dropdown"></select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" style="width:95%" id="txtAddPackUnit" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="dInvOther">
+                            <table id="tbInvOther">
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tr>
+                                                <td width="50%">
+                                                    <h4>ข้อมูลอื่นๆ</h4>
+                                                    <table id="tbOtherData1">
+                                                        <tr>
+                                                            <td>สูตร 19 ทวิ / Bond</td>
+                                                            <td>
+                                                                <input type="text" id="txtFormulaBond19Bis" />
+                                                            </td>
+                                                            <td>
+                                                                <button id="btnBrForm1">...</button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>เวอร์ชั่นสูตร</td>
+                                                            <td>
+                                                                <input type="text" id="txtFormulaVersion" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tax ผู้ยื่นสูตร</td>
+                                                            <td>
+                                                                <input type="text" id="txtFormulaTaxID" />
+                                                            </td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>บัตร BOI เลขที่</td>
+                                                            <td>
+                                                                <input type="text" id="txtBOINo" />
+                                                            </td>
+                                                            <td>
+                                                                <button id="btnBrForm2">...</button>
+                                                                <button id="btnBrForm3">C</button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>ตารางโอนสิทธิ์</td>
+                                                            <td>
+                                                                <input type="text" id="txtTransferNo" value="" />
+                                                            </td>
+                                                            <td>
+                                                                <button id="btnBrForm4">...</button>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <button id="btnDocinfo">ข้อมูลใบอนุญาต</button>
+                                                    <button id="btnDocCopy">คัดลอกใบอนุญาต</button>
+                                                </td>
+                                                <td width="50%">
+                                                    <h4>ค่าใช้จ่ายของแต่ละรายการ</h4>
+                                                    <table id="tblExpenseItem">
+                                                        <tr>
+                                                            <td width="50%">Expense</td>
+                                                            <td width="25%">Amount (Foreign)</td>
+                                                            <td width="25%">Amount (THB)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Shipping Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrShpC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThShpC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Freight Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrFreC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThFreC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Insurance Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrInsC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThInsC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Forwarding Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrFwdC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThFwdC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>In-land Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrInlC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThInlC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Packing Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrPakC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThPakC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Landing Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrLanC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThLanC1" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Others Charge</td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemFrOthC1" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" style="width:95%" id="txtItemThOthC1" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table id="tbBtnSet" width="100%">
+            <tr style="width:100%">
+                <td style="width:60%">
+                    <button class="btn btn-default" id="btnClear" onclick="clearForm()">เคลียร์</button>
+                    <button class="btn btn-default" id="btnPreview" onclick="showForm()">พิมพ์</button>
+                    <button class="btn btn-default" id="btnSave">บันทึก</button>
+                    <button class="btn btn-default" id="btnCancel">ลบ</button>
+                </td>
+                <td style="width:40%;align:right">
+                    <button class="btn btn-default" id="btnRecal">คำนวณยอดเงินใหม่</button>
+                    <button class="btn btn-default" id="btnRegen">สร้างใบขนใหม่</button>
+                    <button class="btn btn-default" id="btnClose">X</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="modalInv" class="modal fade" role="dialog">
+        <div class="modal-dialog-big">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title"><label id="lblHeader">Search Invoice</label></h4>
+                </div>
+                <div class="modal-body">
+                    <table id="tbInv" class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>
+                                <th>refno</th>
+                                <th>invno</th>
+                                <th>invdate</th>
+                                <th>cmpcode</th>
+                                <th>cmptaxnumber</th>
+                                <th>buyername</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modalSearch" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"></button>
+                    <h4 class="modal-title"><label id="lblHeader">Search Data</label></h4>
+                </div>
+                <div class="modal-body">
+                    <table id="tbLOV" class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>
+                                <th>code</th>
+                                <th>name</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
