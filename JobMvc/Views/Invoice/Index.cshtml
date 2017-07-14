@@ -13,6 +13,7 @@
     <script src="~/Scripts/DataTables/datatables.min.js"></script>
     <script src="~/Scripts/bootstrap.js"></script>
     <script src="~/Scripts/bootbox.js"></script>
+    <script src="~/Scripts/cdp/global.js"></script>
     <script type="text/javascript">
             var path='@Url.Content("~")';
             var branchPath =path +'Invoice/getBranch';
@@ -26,13 +27,16 @@
             var commlevelPath = path+'Invoice/getCommLevel';
             var commstatusPath = path+'Invoice/getCommStatus';
             var dutycalPath = path+'Invoice/getDutyCalMethod';
+            var detailPath = path +'Invoice/getInvDetail';
 
             var CompanyList={};
             var DocList={};
+			var DocDetail={};
             var CurrencyList={};
             var UnitList={};
             var CountryList={};
             var ConsigneeList={};
+
             $(document).ready(function () {
                 loadBranch();
                 loadCompany();
@@ -183,7 +187,7 @@
                     if(DocList.length>0)
                     {
                         loadRefNo();
-                        loadInvNo();
+                        loadInvNo(DocList);
                     }
                 });
             }
@@ -359,20 +363,23 @@
                         .text(DocList[i].RefNO));
                 }
             }
-            function loadInvNo()
+            function loadInvNo(docList)
             {
                 $('#selInvNo').empty();
                 $('#selInvNo').append($('<option>',{value:""}).text(""));
-                for(var i=0;i< DocList.length;i++)
+                for(var i=0;i< docList.length;i++)
                 {
-                    $('#selInvNo').append($('<option>', { value:DocList[i].InvNO} )
-                        .text(DocList[i].InvNO));
+                    $('#selInvNo').append($('<option>', { value:docList[i].InvNO} )
+                        .text(docList[i].InvNO));
                 }
             }
             function clearForm()
             {
+                loadInvList();
+
                 $('#txtDecNo').val('');
                 $('#txtInvDate').val('');
+			    $('#txtInvNo').val('');
                 $('#txtPoNo').val('');
                 $('#selBranch').val('');
                 $('#selInvNo').val('');
@@ -465,6 +472,15 @@
                 $('#txtSaveTime').val('');
                 $('#txtSaveBy').val('');
 
+                clearDetail();
+            }
+			function clearDetail()
+			{
+			    var table = $('#tbDetails').DataTable();
+				table
+					.clear()
+					.draw();
+
                 $('#txtItemNo').val('');
                 $('#txtProdCode').val('');
                 $('#txtProdDescTH').val('');
@@ -494,7 +510,7 @@
                 $('#chkSeperateNo').prop('checked',false);
                 $('#chkIsSample').prop('checked',false);
                 $('#chkCalSample').prop('checked',false);
-			    $('#txtSeperateNo').val('');
+                $('#txtSeperateNo').val('');
 
                 $('#txtInvQty').val('');
                 $('#selInvUnit').val('');
@@ -519,6 +535,7 @@
                 $('#txtGWUnit').val('');
                 $('#txtWeightGross').val('');
                 $('#txtFOBPrice').val('');
+			    $('#txtShippingMark').val('');
 
                 $('#txtAddItemPrice').val('');
                 $('#txtItemDesc1').val('');
@@ -553,55 +570,50 @@
                 $('#txtItemThLanC1').val('');
                 $('#txtItemFrOthC1').val('');
                 $('#txtItemThOthC1').val('');
-            }
+			}
 			function showForm()
 			{
-			    //searchData();
+
 			}
 	        function getRowData(tb, e) {
 	            var indexRow = $(e).parents('tr');
 	            return $(tb).DataTable().row(indexRow).data();
 	        }
-			function JSDate(jsonDateString){
-			    try
-                {
-                    var jsDate=new Date(parseInt(jsonDateString.replace('/Date(', '')));
-	                var month = jsDate.getMonth() + 1;
-	                var day = jsDate.getDate();
-	                var year = jsDate.getFullYear();
-	                if (month<=9) month = '0' + month;
-	                if (day<= 9) day = '0' + day;
-	                var date = year + "-" + month + "-" + day;
-	                return date;
-			    }
-			    catch(e)
-			    {
-			        return '';
-			    }
-			}
-            function JSTime(jsonDateString){
-                try
-                {
-                    var jsDate=new Date(parseInt(jsonDateString.replace('/Date(', '')));
-                    var hour = jsDate.getHours();
-                    var min = jsDate.getMinutes();
-                    var sec = jsDate.getSeconds();
-                    if (hour<=9) hour = '0' + hour;
-                    if (min<= 9) min = '0' + min;
-                    if (sec<= 9) sec = '0' + sec;
-                    var date = hour + ":" + min + ":" + sec;
-                    return date;
-                }
-                catch(e)
-                {
-                    return '';
-                }
+            function searchCountry(obj) {
+                $('#tbLOV').DataTable({
+                    data:CountryList,
+                    selected:true,
+                    columns:[
+                        { data: null ,title:"#"},
+                        { data: "CountryCode", title: "รหัส" },
+                        { data: "CountryName", title: "ชื่อ" }
+                    ],
+                    "columnDefs": [
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>Select</button>";
+                                return html;
+                            }
+                        }
+                    ],
+                    destroy: true
+                });
+                $('#tbLOV tbody').on('click', 'tr', function () {
+                    $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+                $('#tbLOV tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbLOV', this);
+                    $(obj).val(dt.CountryCode).change();
+                    $('#modalSearch').modal('hide');
+                });
+                $('#modalSearch').modal('show');
             }
             function searchCurrency() {
                 $('#tbLOV').DataTable({
-                    ajax : {
-                        url: currencyPath, dataSrc:''
-                    },
+                    data:CurrencyList,
                     selected:true,
                     columns:[
                         { data: null ,title:"#"},
@@ -633,9 +645,7 @@
             }
             function searchConsignee() {
                 $('#tbLOV').DataTable({
-                    ajax : {
-                        url: consigneePath, dataSrc:''
-                    },
+                    data:ConsigneeList,
                     selected:true,
                     columns:[
                         { data: null ,title:"#"},
@@ -674,9 +684,7 @@
             }
 			function searchCompany() {
 			    $('#tbLOV').DataTable({
-			        ajax : {
-			            url: companyPath, dataSrc:''
-			        },
+			        data:CompanyList,
 			        selected:true,
 			        columns:[
                         { data: null ,title:"#"},
@@ -715,10 +723,7 @@
 			}
 		    function searchInv() {
 		        $('#tbInv').DataTable({
-		            ajax: {
-		                url: docPath, //web service ที่จะ call ไปดึงข้อมูลมา
-		                dataSrc: ''
-		            },
+		            data: DocList,
 		            selected: true, //ให้สามารถเลือกแถวได้
 		            columns: [ //กำหนด property ของ header column
 		                { data: null ,title:"#"},
@@ -764,145 +769,269 @@
 		        $('#tbInv tbody').on('click', 'button', function () {
 		            var dt = getRowData('#tbInv', this);
 
-			        $('#selBranch').val(dt.BranchCode);
-		            $('#selInvNo').val(dt.InvNO);
-			        $('#selRefNo').val(dt.RefNO);
-			        $('#txtInvNo').val(dt.InvNO);
-			        $('#txtDecNo').val(dt.TrackingNO);
-			        $('#txtInvDate').val(JSDate(dt.InvDate));
-			        $('#txtPoNo').val(dt.PoNo);
-			        $('#selTermTrade').val(dt.PaymentTerm);
-			        $('#txtImExDate').val(JSDate(dt.DepartureDate));
+                    $('#selBranch').val(dt.BranchCode);
+                    $('#selRefNo').val(dt.RefNO);
+			        filterInv();
+			        $('#selInvNo').val(dt.InvNO);
 
-                    $('#selCurrency').val(dt.InvCurrency);
-			        $('#txtExchangeRate').val(dt.InvCurRate);
-
-			        var custIndex=-1;
-	                for(var i=0;i< CompanyList.length;i++)
-	                {
-	                    if(CompanyList[i].CustCode==dt.CmpCode)
-	                    {
-	                        custIndex=i;
-	                        break;
-	                    }
-	                }
-			        if(custIndex>=0)
-                    {
-		                $('#selCompCode').val(custIndex).change();
-			        }
-			        $('#txtCompTaxID').val(dt.CmpTaxNumber);
-                    $('#txtCompBranch').val(dt.CmpBranch);
-                    $('#selCommStatus').val(dt.SellerStatus);
-                    $('#selCommLevel').val(dt.CommercialLevel);
-
-			        custIndex=-1;
-			        for(var i=0;i< ConsigneeList.length;i++)
-                    {
-                        if(ConsigneeList[i].Code==dt.BuyerCode)
-                        {
-                            custIndex=i;
-                            break;
-                        }
-                    }
-                    if(custIndex>=0)
-                    {
-                        $('#selConsCode').val(custIndex).change();
-                    }
-					$('#txtConsName').val(dt.BuyerName);
-					$('#txtConsAddr1').val(dt.Street + ' ' + dt.District);
-					$('#txtConsAddr2').val(dt.Province + ' ' + dt.Postcode);
-					$('#selConsCountry').val(dt.PurchaseCountry).change();
-					$('#txtConsEmail').val(dt.EmailAddr);
-
-	                $('#txtNetW').val(dt.TotalNetW);
-	                $('#txtGrossW').val(dt.TotalNetW);
-                    custIndex=-1;
-                    for(var i=0;i< UnitList.length;i++)
-                    {
-                        if(UnitList[i].Code==dt.NetWUnit)
-                        {
-                            custIndex=i;
-                            break;
-                        }
-                    }
-			        $('#selWeightUnit').val(UnitList[custIndex].TName).change();
-	                $('#txtTotalForeign').val(dt.TotalInvoice);
-	                $('#txtTotalTHB').val(dt.TotalInvTHB);
-
-	                $('#txtShpCharge').val(dt.TotalExpShipping);
-	                $('#selShpCurrency').val(dt.CurExpShp);
-	                $('#txtShpExcRate').val(dt.CurExpShpRate);
-	                $('#txtShpType').val(dt.AvgExpShp);
-	                $('#txtShpTotal').val(dt.TotalExpShippingTHB);
-
-	                $('#txtFreCharge').val(dt.TotalExpFreight);
-	                $('#selFreCurrency').val(dt.CurExpFrg);
-	                $('#txtFreExcRate').val(dt.CurExpFrgRate);
-	                $('#txtFreType').val(dt.AvgExpFrg);
-	                $('#txtFreTotal').val(dt.TotalExpFreightTHB);
-
-	                $('#txtInsCharge').val(dt.TotalExpInsurance);
-	                $('#selInsCurrency').val(dt.CurExpIns);
-	                $('#txtInsExcRate').val(dt.CurExpInsRate);
-	                $('#txtInsType').val(dt.AvgExpIns);
-	                $('#txtInsTotal').val(dt.TotalExpInsuranceTHB);
-
-	                $('#txtFwdCharge').val(dt.TotalExpForward);
-	                $('#selFwdCurrency').val(dt.CurExpFwd);
-	                $('#txtFwdExcRate').val(dt.CurExpFwdRate);
-	                $('#txtFwdType').val(dt.AvgExpFwd);
-	                $('#txtFwdTotal').val(dt.TotalExpForwardTHB);
-
-	                $('#txtInlCharge').val(dt.TotalExpInland);
-	                $('#selInlCurrency').val(dt.CurExpInland);
-	                $('#txtInlExcRate').val(dt.CurExpInlandRate);
-	                $('#txtInlType').val(dt.AvgExpInland);
-	                $('#txtInlTotal').val(dt.TotalExpInlandTHB);
-
-	                $('#txtPacCharge').val(dt.TotalExpPack);
-	                $('#selPacCurrency').val(dt.CurExpPack);
-	                $('#txtPacExcRate').val(dt.CurExpPackRate);
-	                $('#txtPacType').val(dt.AvgExpPack);
-	                $('#txtPacTotal').val(dt.TotalExpPackTHB);
-
-	                $('#txtLndCharge').val(dt.TotalExplanding);
-	                $('#selLndCurrency').val(dt.CurExplanding);
-	                $('#txtLndExcRate').val(dt.CurExplandingRate);
-	                $('#txtLndType').val(dt.AvgExplanding);
-	                $('#txtLndTotal').val(dt.TotalExplandingTHB);
-
-	                $('#txtOthCharge').val(dt.TotalExpOther);
-	                $('#selOthCurrency').val(dt.CurExpOther);
-	                $('#txtOthExcRate').val(dt.CurExpOtherRate);
-	                $('#txtOthType').val(dt.AvgExpOther);
-	                $('#txtOthTotal').val(dt.TotalExpOtherTHB);
-
-	                $('#txtTotalF').val(dt.TotalIncreasedPrice);
-	                $('#txtOtherDetail').val(dt.OtherChargeDesc);
-	                $('#txtTotalB').val(dt.TotalIncreasedPriceTHB);
-
-			        var total=dt.TotalIncreasedPriceTHB+
-			            dt.TotalExpOtherTHB+
-			            dt.TotalExplandingTHB+
-			            dt.TotalExpInsuranceTHB+
-			            dt.TotalExpFreightTHB+
-			            dt.TotalExpInlandTHB+
-			            dt.TotalExpPackTHB+
-			            dt.TotalExpForwardTHB+
-			            dt.TotalExpShippingTHB;
-	                $('#txtTotalExp').val(total);
-                    $('#chkCalSample').prop('checked',dt.AvgExp2Free==1 ? true:false);
-
-	                $('#txtDocStatus').val(dt.IsCancel==1 ? 'Cancel':'Active');
-	                $('#txtRespStatus').val(dt.ResponseStatus==2 ? 'Customs Accept': 'Not Accept');
-	                $('#txtSaveDate').val(JSDate(dt.RecDate));
-	                $('#txtSaveTime').val(JSTime(dt.RecTime));
-	                $('#txtSaveBy').val(dt.RecByUser);
-
+			        loadData();
 		            $('#modalInv').modal('hide');
 		        });
 		        $('#modalInv').modal('show');
 		    }
+			function setUnit(obj,val)
+			{
+			    var units=$.grep(UnitList,function(d){
+                    return d.Code===val;
+                });
+                if(units.length>0) $(obj).val(units[0].TName).change();
+			}
+			function setCompany(obj,val)
+			{
+			    for(var i=0;i< CompanyList.length;i++)
+                {
+                    if(CompanyList[i].CustCode==val)
+                    {
+                        $(obj).val(i).change();
+                        break;
+                    }
+                }
+			}
+            function setConsignee(obj,val)
+            {
+                for(var i=0;i< ConsigneeList.length;i++)
+                {
+                    if(ConsigneeList[i].Code==val)
+                    {
+                        $(obj).val(i).change();
+                        break;
+                    }
+                }
+            }
+			function loadHeader(dt)
+			{
+                $('#txtInvNo').val(dt.InvNO);
+                $('#txtDecNo').val(dt.TrackingNO);
+                $('#txtInvDate').val(JSDate(dt.InvDate));
+                $('#txtPoNo').val(dt.PoNo);
+                $('#selTermTrade').val(dt.PaymentTerm);
+                $('#txtImExDate').val(JSDate(dt.DepartureDate));
+
+                $('#selCurrency').val(dt.InvCurrency).change();
+                $('#txtExchangeRate').val(dt.InvCurRate);
+
+			    setCompany('#selCompCode',dt.CmpCode);
+
+                $('#txtCompTaxID').val(dt.CmpTaxNumber);
+                $('#txtCompBranch').val(dt.CmpBranch);
+                $('#selCommStatus').val(dt.SellerStatus);
+                $('#selCommLevel').val(dt.CommercialLevel);
+
+			    setConsignee('#selConsCode',dt.BuyerCode);
+
+                $('#txtConsName').val(dt.BuyerName);
+                $('#txtConsAddr1').val(dt.Street + ' ' + dt.District);
+                $('#txtConsAddr2').val(dt.Province + ' ' + dt.Postcode);
+                $('#selConsCountry').val(dt.PurchaseCountry).change();
+                $('#txtConsEmail').val(dt.EmailAddr);
+
+                $('#txtNetW').val(dt.TotalNetW);
+                $('#txtGrossW').val(dt.TotalNetW);
+
+			    setUnit('#selWeightUnit',dt.NetWUnit);
+
+			    $('#txtTotalForeign').val(dt.TotalInvoice);
+                $('#txtTotalTHB').val(dt.TotalInvTHB);
+
+                $('#txtShpCharge').val(dt.TotalExpShipping);
+                $('#selShpCurrency').val(dt.CurExpShp);
+                $('#txtShpExcRate').val(dt.CurExpShpRate);
+                $('#txtShpType').val(dt.AvgExpShp);
+                $('#txtShpTotal').val(dt.TotalExpShippingTHB);
+
+                $('#txtFreCharge').val(dt.TotalExpFreight);
+                $('#selFreCurrency').val(dt.CurExpFrg);
+                $('#txtFreExcRate').val(dt.CurExpFrgRate);
+                $('#txtFreType').val(dt.AvgExpFrg);
+                $('#txtFreTotal').val(dt.TotalExpFreightTHB);
+
+                $('#txtInsCharge').val(dt.TotalExpInsurance);
+                $('#selInsCurrency').val(dt.CurExpIns);
+                $('#txtInsExcRate').val(dt.CurExpInsRate);
+                $('#txtInsType').val(dt.AvgExpIns);
+                $('#txtInsTotal').val(dt.TotalExpInsuranceTHB);
+
+                $('#txtFwdCharge').val(dt.TotalExpForward);
+                $('#selFwdCurrency').val(dt.CurExpFwd);
+                $('#txtFwdExcRate').val(dt.CurExpFwdRate);
+                $('#txtFwdType').val(dt.AvgExpFwd);
+                $('#txtFwdTotal').val(dt.TotalExpForwardTHB);
+
+                $('#txtInlCharge').val(dt.TotalExpInland);
+                $('#selInlCurrency').val(dt.CurExpInland);
+                $('#txtInlExcRate').val(dt.CurExpInlandRate);
+                $('#txtInlType').val(dt.AvgExpInland);
+                $('#txtInlTotal').val(dt.TotalExpInlandTHB);
+
+                $('#txtPacCharge').val(dt.TotalExpPack);
+                $('#selPacCurrency').val(dt.CurExpPack);
+                $('#txtPacExcRate').val(dt.CurExpPackRate);
+                $('#txtPacType').val(dt.AvgExpPack);
+                $('#txtPacTotal').val(dt.TotalExpPackTHB);
+
+                $('#txtLndCharge').val(dt.TotalExplanding);
+                $('#selLndCurrency').val(dt.CurExplanding);
+                $('#txtLndExcRate').val(dt.CurExplandingRate);
+                $('#txtLndType').val(dt.AvgExplanding);
+                $('#txtLndTotal').val(dt.TotalExplandingTHB);
+
+                $('#txtOthCharge').val(dt.TotalExpOther);
+                $('#selOthCurrency').val(dt.CurExpOther);
+                $('#txtOthExcRate').val(dt.CurExpOtherRate);
+                $('#txtOthType').val(dt.AvgExpOther);
+                $('#txtOthTotal').val(dt.TotalExpOtherTHB);
+
+                $('#txtTotalF').val(dt.TotalIncreasedPrice);
+                $('#txtOtherDetail').val(dt.OtherChargeDesc);
+                $('#txtTotalB').val(dt.TotalIncreasedPriceTHB);
+
+                var total=dt.TotalIncreasedPriceTHB+
+                    dt.TotalExpOtherTHB+
+                    dt.TotalExplandingTHB+
+                    dt.TotalExpInsuranceTHB+
+                    dt.TotalExpFreightTHB+
+                    dt.TotalExpInlandTHB+
+                    dt.TotalExpPackTHB+
+                    dt.TotalExpForwardTHB+
+                    dt.TotalExpShippingTHB;
+                $('#txtTotalExp').val(total);
+                $('#chkCalSample').prop('checked',dt.AvgExp2Free==1 ? true:false);
+
+                $('#txtDocStatus').val(dt.IsCancel==1 ? 'Cancel':'Active');
+                $('#txtRespStatus').val(dt.ResponseStatus==2 ? 'Customs Accept': 'Not Accept');
+                $('#txtSaveDate').val(JSDate(dt.RecDate));
+                $('#txtSaveTime').val(JSTime(dt.RecTime));
+                $('#txtSaveBy').val(dt.RecByUser);
+
+    			loadDetails(dt.RefNO,dt.InvNO);
+			    //alert('load complete');
+			}
+			function filterInv()
+			{
+			    var ref = $('#selRefNo').val();
+				var invFilter = $.grep(DocList, function(data) {
+				    return data.RefNO === ref;
+				});
+			    loadInvNo(invFilter);;
+			}
+			function loadData()
+			{
+			    //alert('trigger');
+			    var inv = $('#selInvNo').val();
+			    var ref = $('#selRefNo').val();
+			    var invFilter = $.grep(DocList, function(data) {
+                    return data.InvNO === inv && data.RefNO=== ref;
+                });
+			    if(invFilter.length>0)
+			    {
+			        loadHeader(invFilter[0]);
+			    }
+			}
+			function loadDetails(refno,invno)
+			{
+                $('#tbDetails').DataTable({
+                    ajax : {
+                        url: detailPath +'?RefNo='+ refno +'&InvNo=' +invno, dataSrc:''
+                    },
+                    selected:true,
+                    columns:[
+                        { data: "ItemNO", title: "ลำดับที่" },
+                        { data: "PdtDescription", title: "รายการ" }
+                    ],
+			        pagelength:5,
+                    destroy: true
+                });
+                $('#tbDetails tbody').on('click', 'tr', function () {
+                    $('#tbDetails tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+
+                    var dt =$('#tbDetails').DataTable().row(this).data();
+
+                    $('#txtItemNo').val(dt.ItemNO);
+			        $('#txtProdCode').val(dt.PdtCode);
+			        $('#txtProdDescEN').val(dt.PdtDescriptionEN);
+			        $('#txtProdDescTH').val(dt.PdtDescription);
+					$('#txtProdBrand').val(dt.BrandName);
+					$('#txtProdRemark').val(dt.DRemark);
+
+			        $('#txtTariffCode').val(dt.TariffCode);
+					$('#txtTariffSeq').val(dt.TariffSeq);
+					$('#txtStatCode').val(dt.StatCode);
+					$('#selCalMethod').val(dt.DutyCalcBy);
+					$('#txtDutyRate').val(dt.DutyPRatePay);
+					$('#txtCalByState').val(dt.DutySRatePay);
+					$('#txtDispense').val(dt.DutyDeduct);
+
+					$('#selFCountry').val(dt.DPurchaseCountry).change();
+					$('#txtCustomsConst').val(dt.ConstantValue);
+					$('#txtCustomsPCode').val(dt.RTCProductCode);
+					$('#txtProductYear').val(dt.ProductYear);
+					$('#selOCountry').val(dt.DOriginCountry).change();
+					$('#txtMisc1').val(dt.ProductAttribute1);
+					$('#txtMisc2').val(dt.ProductAttribute2);
+					$('#chkSeperateNo').prop('checked',dt.SeperateItem==='Y' ? true : false);
+					$('#txtSeperateNo').val(dt.DeclareLineNo);
+					$('#chkIsSample').prop('checked',dt.IsFreeOfChage==1? true:false);
+
+			        $('#txtInvQty').val(dt.SalesPackQty);
+			        setUnit('#selInvUnit',dt.SalesPackUnit);
+			        $('#txtPackQty').val(dt.PackAmount);
+			        setUnit('#selPackUnit',dt.PackUnit);
+					$('#txtAddPrice').val(dt.IncreasedPrice);
+					$('#txtTariffQty').val(dt.TariffQty);
+			        setUnit('#selTariffUnit',dt.TariffUnit);
+			        $('#txtUnitPrice').val(dt.SalesPrice);
+					$('#txtTariffAmt').val(dt.SalesTotalPrice);
+					$('#selInvCurrency').val($('#selCurrency').val());
+					$('#txtTotalInv').val(dt.SalesNetPriceTHB);
+					$('#txtWeightItem').val(dt.WeightPerUnit);
+					$('#txtWeightPackage').val(dt.WeightPerPack);
+					$('#txtWeightNet').val(dt.NetWeight);
+			        setUnit('#selGWUnit',dt.WeightUnit);
+			        $('#txtWeightGross').val(dt.GrossWeight);
+					$('#txtFOBPrice').val(dt.SalesFOBPriceTHB);
+					$('#txtAddItemPrice').val(dt.IncreasedPriceTHB);
+					$('#txtItemDesc1').val(dt.ProductAttribute1);
+					$('#txtItemDesc2').val(dt.ProductAttribute2);
+					$('#txtAddInvQty').val(dt.SalesPackAddQty);
+			        setUnit('#selAddInvUnit',dt.SalesPackAddUnit);
+			        $('#txtAddPackQty').val(dt.PackAddAmount);
+			        setUnit('#selAddPackUnit',dt.PackAddUnit);
+
+			        $('#txtShippingMark').val(dt.ShippingMark);
+			        $('#txtFormulaBond19Bis').val(dt.FormulaNo);
+					$('#txtFormulaVersion').val(dt.BondFormulaNo);
+					$('#txtFormulaTaxID').val(dt.BOILicenseNo);
+					$('#txtBOINo').val(dt.PermitNo);
+					$('#txtTransferNo').val(dt.BIS19TransferNo);
+					$('#txtItemFrShpC1').val(dt.ExpShipping);
+					$('#txtItemThShpC1').val(dt.ExpShippingTHB);
+					$('#txtItemFrFreC1').val(dt.ExpFreight);
+					$('#txtItemThFreC1').val(dt.ExpFreightTHB);
+					$('#txtItemFrInsC1').val(dt.ExpInsurance);
+					$('#txtItemThInsC1').val(dt.ExpInsuranceTHB);
+					$('#txtItemFrFwdC1').val(dt.ExpForward);
+					$('#txtItemThFwdC1').val(dt.ExpForwardTHB);
+					$('#txtItemFrInlC1').val(dt.ExpInLand);
+					$('#txtItemThInlC1').val(dt.ExpInLandTHB);
+					$('#txtItemFrPakC1').val(dt.ExpPacking);
+					$('#txtItemThPakC1').val(dt.ExpPackingTHB);
+					$('#txtItemFrLanC1').val(dt.ExpLanding);
+					$('#txtItemThLanC1').val(dt.ExpLandingTHB);
+					$('#txtItemFrOthC1').val(dt.ExpOther);
+					$('#txtItemThOthC1').val(dt.ExpOtherTHB);
+                });
+			}
     </script>
 </head>
 <body>
@@ -929,7 +1058,7 @@
                         <tr>
                             <td>
                                 <!--<input type="text" id="txtRefNO" value="DAJD000000001" class="form-control" />-->
-                                <select id="selRefNo" class="form-control dropdown"></select>
+                                <select id="selRefNo" class="form-control dropdown" onchange="filterInv()"></select>
                             </td>
                         </tr>
                         <tr>
@@ -940,7 +1069,7 @@
                         <tr>
                             <td>
                                 <!--<input type="text" id="txtInvNO" value="2017/0343" class="form-control" />-->
-                                <select id="selInvNo" class="form-control dropdown"></select>
+                                <select id="selInvNo" class="form-control dropdown" onchange="loadData()"></select>
                             </td>
                         </tr>
                         <tr>
@@ -1400,20 +1529,13 @@
                                     </td>
                                     <td height="100%">
                                         รายการสินค้า<br />
-                                        <table id="tbProductList" border="1" class="table table-responsive" style="height:100%;background-color:white">
+                                        <table id="tbDetails" border="1" class="table table-responsive" style="height:100%;background-color:white">
                                             <thead>
                                                 <tr>
                                                     <th>No.</th>
                                                     <th>Description</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>ส่วนประกอบทำด้วยพลาสติก</td>
-                                                </tr>
-
-                                            </tbody>
                                         </table>
                                     </td>
                                 </tr>
@@ -1455,10 +1577,8 @@
                                                 </td>
                                                 <td>รหัสสถิติ</td>
                                                 <td></td>
-                                                <td>วิธีคำนวณอากร</td>
-                                                <td>อากร (%)</td>
-                                                <td>ตามสภาพ</td>
-                                                <td>ลดหย่อน</td>
+                                                <td>ค่าคงที่ศุลกากร</td>
+                                                <td>รหัสสินค้ากรมศุล</td>
                                             </tr>
                                             <tr>
                                                 <td>
@@ -1474,96 +1594,111 @@
                                                     <button id="btnGetTariff">...</button>
                                                 </td>
                                                 <td>
-                                                    <!--<input type="text" id="txtCalMethod" value="Q / Qualtity"/>  -->
-                                                    <select id="selCalMethod" class="form-control dropdown"></select>
-                                                </td>
-                                                <td>
-                                                    <input type="number" id="txtDutyRate" />
-                                                </td>
-                                                <td>
-                                                    <input type="number" id="txtCalByState" />
-                                                </td>
-                                                <td>
-                                                    <input type="number" id="txtDispense" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <table id="tbCustoms2">
-                                            <tr>
-                                                <td>
-                                                    รหัสประเทศผู้ซื้อ
-                                                </td>
-                                                <td>
-                                                    ชื่อประเทศผู้ซื้อ
-                                                </td>
-                                                <td>ค่าคงที่ศุลกากร</td>
-                                                <td>รหัสสินค้ากรมศุล</td>
-                                                <td>ปีสินค้า</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <select id="selFCountry" class="form-control dropdown"></select>
-                                                </td>
-                                                <td>
-                                                    <button id="btnBrowseFCountry">...</button>
-                                                    <input type="text" id="txtFCountry" />
-                                                </td>
-                                                <td>
                                                     <input type="text" id="txtCustomsConst" />
-                                                    <button id="btnBrowseCustomsConst">...</button>
                                                 </td>
                                                 <td>
                                                     <input type="text" id="txtCustomsPCode" />
-                                                    <button id="btnBrowseCustomsPCode">...</button>
-                                                </td>
-                                                <td>
-                                                    <input type="text" id="txtProductYear" />
                                                 </td>
                                             </tr>
                                         </table>
-                                        <table id="tbCustoms3">
+                                        <table>
                                             <tr>
                                                 <td>
-                                                    รหัสประเทศผู้กำเนิด
+                                                    <table>
+                                                        <tr>
+                                                            <td>วิธีคำนวณอากร</td>
+                                                            <td>อากร (%)</td>
+                                                            <td>ตามสภาพ</td>
+                                                            <td>ลดหย่อน</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <!--<input type="text" id="txtCalMethod" value="Q / Qualtity"/>  -->
+                                                                <select id="selCalMethod" class="form-control dropdown"></select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" id="txtDutyRate" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" id="txtCalByState" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" id="txtDispense" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table id="tbCustoms2">
+                                                        <tr>
+                                                            <td>
+                                                                รหัสประเทศผู้ซื้อ
+                                                            </td>
+                                                            <td>
+                                                                ชื่อประเทศผู้ซื้อ
+                                                            </td>
+                                                            <td>ปีสินค้า</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select id="selFCountry" class="form-control dropdown"></select>
+                                                            </td>
+                                                            <td>
+                                                                <button id="btnBrowseFCountry" onclick="searchCountry('#selFCountry')">...</button>
+                                                                <input type="text" id="txtFCountry" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" id="txtProductYear" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table id="tbCustoms3">
+                                                        <tr>
+                                                            <td>
+                                                                รหัสประเทศผู้กำเนิด
+                                                            </td>
+                                                            <td>
+                                                                ชื่อประเทศกำเนิด
+                                                            </td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <select id="selOCountry" class="form-control dropdown"></select>
+                                                            </td>
+                                                            <td>
+                                                                <button id="btnBrowseOCountry" onclick="searchCountry('#selOCountry')">...</button>
+                                                                <input type="text" id="txtOCountry" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" id="txtMisc1" value="" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" id="txtMisc2" value="" />
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    <table id="tbCustoms4">
+                                                        <tr>
+                                                            <td>
+                                                                <input type="checkbox" id="chkSeperateNo" />แยกรายการในใบขนสินค้าลำดับที่
+                                                                <input type="text" id="txtSeperateNo" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="checkbox" id="chkIsSample" />เป็นของแถม
+                                                            </td>
+                                                        </tr>
+                                                    </table>
                                                 </td>
                                                 <td>
-                                                    ชื่อประเทศกำเนิด
+                                                    Shipping Mark: <br />
+                                                    <textarea rows="5" class="form-control" id="txtShippingMark"></textarea>
                                                 </td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
+                                                <!--
                                                 <td>
-                                                    <select id="selOCountry" class="form-control dropdown"></select>
+                                                <button id="btnCopyAll">เหมือนกันทุกรายการ</button>
                                                 </td>
-                                                <td>
-                                                    <button id="btnBrowseOCountry">...</button>
-                                                    <input type="text" id="txtOCountry" />
-                                                </td>
-                                                <td>
-                                                    <input type="text" id="txtMisc1" value="" />
-                                                </td>
-                                                <td>
-                                                    <input type="text" id="txtMisc2" value="" />
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <table id="tbCustoms4">
-                                            <tr>
-                                                <td>
-                                                    <button id="btnShippingMask">Shipping Mark</button>
-                                                </td>
-                                                <td>
-                                                    <button id="btnCopyAll">เหมือนกันทุกรายการ</button>
-                                                </td>
-                                                <td>
-                                                    <input type="checkbox" id="chkSeperateNo" />แยกรายการในใบขนสินค้าลำดับที่
-                                                    <input type="text" id="txtSeperateNo" />
-                                                </td>
-                                                <td>
-                                                    <input type="checkbox" id="chkIsSample" />เป็นของแถม
-                                                </td>
-                                            </tr>
+                                                -->
+                                            <tr />
                                         </table>
                                     </td>
                                 </tr>
@@ -1744,9 +1879,6 @@
                                                             <td>
                                                                 <input type="text" id="txtFormulaBond19Bis" />
                                                             </td>
-                                                            <td>
-                                                                <button id="btnBrForm1">...</button>
-                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td>เวอร์ชั่นสูตร</td>
@@ -1759,25 +1891,17 @@
                                                             <td>
                                                                 <input type="text" id="txtFormulaTaxID" />
                                                             </td>
-                                                            <td></td>
                                                         </tr>
                                                         <tr>
                                                             <td>บัตร BOI เลขที่</td>
                                                             <td>
                                                                 <input type="text" id="txtBOINo" />
                                                             </td>
-                                                            <td>
-                                                                <button id="btnBrForm2">...</button>
-                                                                <button id="btnBrForm3">C</button>
-                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td>ตารางโอนสิทธิ์</td>
                                                             <td>
                                                                 <input type="text" id="txtTransferNo" value="" />
-                                                            </td>
-                                                            <td>
-                                                                <button id="btnBrForm4">...</button>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -1920,6 +2044,7 @@
             </div>
         </div>
     </div>
+
     <div id="modalSearch" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">

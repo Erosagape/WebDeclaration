@@ -241,7 +241,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/01/2017 14:00:14</publishTime>
     </File>
     <File Include="bin/JobMvc.dll">
-      <publishTime>07/06/2017 09:47:48</publishTime>
+      <publishTime>07/14/2017 07:25:24</publishTime>
     </File>
     <File Include="bin/ko/Microsoft.Data.Edm.resources.dll">
       <publishTime>02/01/2017 14:00:38</publishTime>
@@ -516,6 +516,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Scripts/bootstrap.min.js">
       <publishTime>03/11/2017 14:15:34</publishTime>
     </File>
+    <File Include="Scripts/cdp/global.js">
+      <publishTime>07/14/2017 07:17:49</publishTime>
+    </File>
     <File Include="Scripts/DataTables/datatables.css">
       <publishTime>03/11/2017 14:15:35</publishTime>
     </File>
@@ -649,7 +652,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>07/05/2017 15:15:52</publishTime>
     </File>
     <File Include="Views/Invoice/Index.cshtml">
-      <publishTime>07/06/2017 09:47:26</publishTime>
+      <publishTime>07/14/2017 07:25:15</publishTime>
     </File>
     <File Include="Views/Invoice/Invoice.cshtml">
       <publishTime>04/17/2017 16:15:47</publishTime>
@@ -751,7 +754,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>03/11/2017 14:15:35</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>07/06/2017 09:47:58</publishTime>
+      <publishTime>07/12/2017 08:26:00</publishTime>
     </File>
   </ItemGroup>
 </Project>

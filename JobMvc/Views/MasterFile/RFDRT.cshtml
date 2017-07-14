@@ -1,0 +1,89 @@
+﻿
+@{
+    ViewBag.Title = "RFDRT";
+}
+<h2>@ViewBag.Title</h2>
+<div id="myForm">
+    <table>
+        <tr>
+            <td>
+                <input id="txtSearch" type="text" class="form-control" />
+            </td>
+            <td>
+                <button id="btnSearch" type="button" class="btn btn-default" onclick="showGrid()">Search</button>
+            </td>
+        </tr>
+    </table>
+    <table id="tb" class="table table-responsive">
+        <thead>
+            <tr>
+                <th>TRFCLS</th>
+                <th>TRFSEQ</th>
+                <th>DTYCDE</th>
+                <th>DTYYRTE</th>
+                <th>DTYSPE</th>
+                <th>SPECDE</th>
+                <!--<th>ANONUM</th>
+                <th>ANODES</th>
+                <th>DTEANO</th>
+                <th>DTESTR</th>
+                <th>DTEFIN</th>
+                <th>DSCTRS1</th>
+                <th>DSCTRS2</th>-->
+                <th>PRVCDE</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script type="text/javascript">
+    var path = '@Url.Content("~")';
+    var urlSource = path + 'MasterFile/getRFDRT';
+    //Event ตอนเปิดเพจมาให้ load grid เลย
+    $(document).ready(function () {
+        
+    });
+    function showGrid() {
+        var filter = $('#txtSearch').val();
+        if (filter.length ==0) {
+            bootbox.alert('Please key some charactor');
+            return;
+        }
+        filter = '0000' + filter;
+        var tb=$('#tb').DataTable({
+            ajax: {
+                url: urlSource + '?filter=' + filter, //web service ที่จะ call ไปดึงข้อมูลมา
+                dataSrc: ''
+            },
+            selected: true, //ให้สามารถเลือกแถวได้
+            columns: [ //กำหนด property ของ header column
+              { data :"TRFCLS" },
+                { data :"TRFSEQ" },
+                { data :"DTYCDE" },
+                { data :"DTYYRTE" },
+                { data :"DTYSPE" },
+                { data :"SPECDE" },
+                /*{ data :"ANONUM" },
+                { data :"ANODES" },
+                { data :"DTEANO" },
+                { data :"DTESTR" },
+                { data :"DTEFIN" },
+                { data :"DSCTRS1" },
+                { data: "DSCTRS2" },*/
+                { data: "PRVCDE" }
+            ],
+            async:true,
+            destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page            
+        });
+        $('#tb tbody').on('click', 'tr', function () {
+            $('#tb tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+            $(this).addClass('selected'); //select row ใหม่
+            var row = tb.row(this).data();
+            bootbox.alert(row.PRVCDE);
+        });
+
+    }
+    function getRowData(tb, e) {
+        var indexRow = $(e).parents('tr');
+        return $(tb).DataTable().row(indexRow).data();
+    }
+</script>

@@ -53,5 +53,9 @@ namespace JobMvc.Controllers
         {
             return Json(DBContext.getConsignee(), JsonRequestBehavior.AllowGet);
         }
+        public ActionResult getInvDetail(string refno, string invno)
+        {
+            return Json(DBContext.getInvDetail(refno, invno), JsonRequestBehavior.AllowGet);
+        }
     }
 }
