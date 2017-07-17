@@ -1,5 +1,8 @@
 ﻿using System.Web.Mvc;
 using JobMvc.DataLayer;
+using Newtonsoft.Json;
+using System.Linq;
+
 namespace JobMvc.Controllers
 {
     public class InvoiceController : Controller
@@ -56,6 +59,21 @@ namespace JobMvc.Controllers
         public ActionResult getInvDetail(string refno, string invno)
         {
             return Json(DBContext.getInvDetail(refno, invno), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult getRFDRT(string filter)
+        {
+            string json = JsonConvert.SerializeObject(DBContext.getRFDRT(filter).ToList());
+            return Content(json, "application/json", System.Text.UTF8Encoding.UTF8);
+        }
+        public ActionResult getRFTRS(string filter)
+        {
+            string json = JsonConvert.SerializeObject(DBContext.getRFTRS(filter).ToList());
+            return Content(json, "application/json", System.Text.UTF8Encoding.UTF8);
+        }
+        public ActionResult getRFTRC(string filter)
+        {
+            string json = JsonConvert.SerializeObject(DBContext.getRFTRC(filter).ToList());
+            return Content(json, "application/json", System.Text.UTF8Encoding.UTF8);
         }
     }
 }

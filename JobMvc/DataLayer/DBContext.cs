@@ -38,6 +38,21 @@ namespace JobMvc.DataLayer
             var data = new DecInvoice_Detail().get(string.Format(" where RefNO='{0}' and InvNO='{1}'", RefNo, InvNo));
             return data;
         }
+        public static List<RFDRT> getRFDRT(string filter)
+        {
+            var data = new RFDRT().get(filter);
+            return data;
+        }
+        public static List<RFTRS> getRFTRS(string filter)
+        {
+            var data = new RFTRS().get(filter);
+            return data;
+        }
+        public static List<RFTRC> getRFTRC(string filter)
+        {
+            var data = new RFTRC().get(filter);
+            return data;
+        }
     }
     public static class _Dummy
     {
