@@ -24,6 +24,10 @@ namespace JobMvc.Controllers
         {
             return Json(_Dummy.getTermofTrade(), JsonRequestBehavior.AllowGet);
         }
+        public ActionResult getPaymentTerm()
+        {
+            return Json(_Dummy.getPaymentTerm(), JsonRequestBehavior.AllowGet);
+        }
         public ActionResult getCurrency()
         {
             return Json(DBContext.getCurrency(), JsonRequestBehavior.AllowGet);
@@ -74,6 +78,20 @@ namespace JobMvc.Controllers
         {
             string json = JsonConvert.SerializeObject(DBContext.getRFTRC(filter).ToList());
             return Content(json, "application/json", System.Text.UTF8Encoding.UTF8);
+        }
+        public ActionResult getNotifyParty(string concode)
+        {
+            return Json(DBContext.getNotifyParty(concode), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult saveHeader(DecInvoice_Header data)
+        {
+            string json = JsonConvert.SerializeObject(data);
+            return Content(json, "appliction/json", System.Text.Encoding.UTF8);
+        }
+        public ActionResult saveDetail(DecInvoice_Detail data)
+        {
+            string json = JsonConvert.SerializeObject(data);
+            return Content(json, "appliction/json", System.Text.Encoding.UTF8);
         }
     }
 }

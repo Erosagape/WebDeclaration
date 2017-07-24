@@ -15,11 +15,12 @@
     <script src="~/Scripts/bootbox.js"></script>
     <script src="~/Scripts/cdp/global.js"></script>
     <script type="text/javascript">
-			//ส่วนกำหนดตัวแปรต่างๆ
+            //ส่วนกำหนดตัวแปรต่างๆ
             var path='@Url.Content("~")';
             var branchPath =path +'Invoice/getBranch';
             var docPath =path +'Invoice/getInvList';
             var incoTermPath = path+'Invoice/getIncoTerm';
+			var paymentTermPath = path+'Invoice/getPaymentTerm';
             var currencyPath = path+'Invoice/getCurrency';
             var countryPath = path+'Invoice/getCountry';
             var unitPath = path+'Invoice/getUnit';
@@ -29,25 +30,35 @@
             var commstatusPath = path+'Invoice/getCommStatus';
             var dutycalPath = path+'Invoice/getDutyCalMethod';
             var detailPath = path +'Invoice/getInvDetail';
-			var tariffCodePath = path +'Invoice/getRFTRS';
-			var tariffRatePath = path +'Invoice/getRFDRT';
+            var tariffCodePath = path +'Invoice/getRFTRS';
+            var tariffRatePath = path +'Invoice/getRFDRT';
+            var notifyPartyPath = path +'Invoice/getNotifyParty';
+			var urlSaveH = path+'Invoice/saveHeader';
+			var urlSaveD = path+'Invoice/saveDetail';
 
+			//อาร์เรย์ต่างๆ
             var CompanyList={};
             var DocList={};
-			var DocDetail={};
+            var DocDetail={};
             var CurrencyList={};
             var UnitList={};
             var CountryList={};
             var ConsigneeList={};
+			var NotifyList={};
             var tb = [];
-			var idxRow=-1;
-			//function ที่จะถูกเรียกตอน load เพจ
+			var currentDoc=[];
+            var idxRow=-1;
+			var currentRow=[];
+
+            //function ที่จะถูกเรียกตอน load เพจ
             $(document).ready(function () {
                 loadBranch();
                 loadCompany();
                 loadConsignee();
+			    loadNotifyParty();
                 loadInvList();
                 loadIncoTerm();
+			    loadPaymentTerm();
                 loadCurrencys();
                 loadUnits();
                 loadCountrys();
@@ -55,8 +66,10 @@
                 loadCommLevel();
                 loadCommStatus();
                 ShowMenu('dInvComm');
+			    currentDoc=GetStruct_DecInvoice_Header();
+			    currentRow=GetStruct_DecInvoice_Detail();
             });
-			//ฟังก์ชั่นตอนเลือกเมนูต่างๆ ทางด้านซ้าย
+            //ฟังก์ชั่นตอนเลือกเมนูต่างๆ ทางด้านซ้าย
             function HideMenu()
             {
                 $('#dInvComm').hide();
@@ -78,7 +91,7 @@
                 $('#dDetails').show();
                 $('#' + e).show();
             }
-			//ส่วนนี้สำหรับการ load dropdown ต่างๆ
+            //ส่วนนี้สำหรับการ load dropdown ต่างๆ
             function loadBranch()
             {
                 $('#selBranch').empty();
@@ -174,12 +187,19 @@
             {
                 $('#selCommStatus').empty();
                 $('#selCommStatus').append($('<option>',{value:""}).text(""));
-                $.get(commstatusPath)
-                .done(function(data){
+
+                $('#selConsStatus').empty();
+                $('#selConsStatus').append($('<option>',{value:""}).text(""));
+
+			    $.get(commstatusPath)
+			    .done(function(data){
                     if(data!=undefined)
                     {
                         $.each(data,function(key,value){
                             $('#selCommStatus')
+                                .append($('<option>', { value: key })
+                                .text(key +' / ' + value));
+			                $('#selConsStatus')
                                 .append($('<option>', { value: key })
                                 .text(key +' / ' + value));
                         });
@@ -226,13 +246,26 @@
                                 $('#txtConsAddr1').val('');
                                 $('#txtConsAddr2').val('');
                                 $('#selConsCountry').val('');
-			                    $('#txtConsCountry').val('');
+                                $('#txtConsCountry').val('');
                                 $('#txtConsEmail').val('');
                             }
+			                loadNotifyParty();
                         });
                     }
                 });
             }
+			function loadNotifyParty()
+            {
+			    var filter=($('#selConsCode').val() >=0 ? ConsigneeList[$('#selConsCode').val()].Code : '');
+
+			    $.get(notifyPartyPath+'?concode=' + filter)
+	                .done(function(data){
+	                    if(data.length>0)
+	                    {
+			                NotifyList=data;
+	                    }
+	                });
+			}
             function loadCurrencys()
             {
                 $.get(currencyPath)
@@ -298,6 +331,7 @@
                     {
                         CountryList=data;
                         loadCountry('selConsCountry','txtConsCountry');
+			            loadCountry('selNotifyCountry','txtNotifyCountry');
                         loadCountry('selFCountry','txtFCountry');
                         loadCountry('selOCountry','txtOCountry');
                     }
@@ -318,15 +352,15 @@
 
                     if(strOBJ!=''){
                         $('#' + strID).on('change',function(){
-                    		$('#'+ strOBJ).val('');
-			                for(var i=0;i< CountryList.length;i++)
-			                {
-			                    if(CountryList[i].CountryCode==$('#' + strID).val())
-			                    {
-			                        $('#'+ strOBJ).val(CountryList[i].CountryName);
-			                        break;
-			                    }
-			                }
+                            $('#'+ strOBJ).val('');
+                            for(var i=0;i< CountryList.length;i++)
+                            {
+                                if(CountryList[i].CountryCode==$('#' + strID).val())
+                                {
+                                    $('#'+ strOBJ).val(CountryList[i].CountryName);
+                                    break;
+                                }
+                            }
                         });
                     }
                 }
@@ -360,6 +394,21 @@
                     }
                 });
             }
+            function loadPaymentTerm()
+            {
+                $('#selConsTerm').empty();
+                $('#selConsTerm').append($('<option>',{value:""}).text(""));
+                $.get(paymentTermPath)
+                .done(function(data){
+                    if(data.length>0)
+                    {
+                        for(var i=0;i< data.length;i++)
+                        {
+                            $('#selConsTerm').append($('<option>', { value: data[i] }).text( data[i]));
+                        }
+                    }
+                });
+            }
             function loadRefNo()
             {
                 $('#selRefNo').empty();
@@ -380,7 +429,7 @@
                         .text(docList[i].InvNO));
                 }
             }
-			//ฟังก์ชั่นนี้สำหรับการกำหนดค่า dropdown
+            //ฟังก์ชั่นนี้สำหรับการกำหนดค่า dropdown
             function setUnit(obj,val)
             {
                 var units=$.grep(UnitList,function(d){
@@ -410,14 +459,212 @@
                     }
                 }
             }
-			//ฟังก์ชั่นล้างหน้าจอ
+            //ฟังก์ชั่นล้างหน้าจอ
+            function GetStruct_DecInvoice_Header()
+            {
+                var obj={
+                    BranchCode : '',
+                    RefNO : '',
+                    InvNO : '',
+                    InvDate : '',
+                    TrackingNO : '',
+                    DocStatus : 0,
+                    CmpCode : '',
+                    CmpTaxNumber : '',
+                    CmpBranch : '',
+                    SellerStatus : '',
+                    ConsigneeStatus : '',
+                    CommercialLevel : '',
+                    BuyerCode : '',
+                    BuyerName : '',
+                    Street : '',
+                    District : '',
+                    Subprovince : '',
+                    Province : '',
+                    PostCode : '',
+                    EmailAddr : '',
+                    ConsigneeAddr : '',
+                    PurchaseCountry : '',
+                    NotifyPartyCode : '',
+                    NotifyPartyName : '',
+                    NotifyPartyAddr : '',
+                    NotifyPartyEmail : '',
+                    DestinationCountry : '',
+                    DepartureDate : '1900-01-01',
+                    IncoTerms : '',
+                    InvCurrency : '',
+                    InvCurRate : 1,
+                    TotalNetW : 0,
+                    NetWUnit : '',
+                    TotalInvoice : 0,
+                    TotalinvTHB : 0,
+                    TotalExpShipping : 0,
+                    CurExpShp : '',
+                    CurExpShpRate : 1,
+                    AvgExpShp : '',
+                    TotalExpShippingTHB :0,
+                    TotalExpFreight : 0,
+                    CurExpFrg : '',
+                    CurExpFrgRate : 1,
+                    AvgExpFrg : '',
+                    TotalExpFreightTHB :0,
+                    TotalExpInsurance :0,
+                    CurExpIns : '',
+                    CurExpInsRate : 1,
+                    AvgExpIns : '',
+                    TotalExpInsuranceTHB : 0,
+                    TotalExpForward : 0,
+                    CurExpFwd : '',
+                    CurExpFwdRate : 1,
+                    AvgExpFwd : '',
+                    TotalExpForwardTHB : 0,
+                    TotalExpInland : 0,
+                    CurExpInland : '',
+                    CurExpInlandRate :1,
+                    AvgExpInland : '',
+                    TotalExpInlandTHB : 0,
+                    TotalExpPack : 0,
+                    CurExpPack : '',
+                    CurExpPackRate : 1,
+                    AvgExpPack : '',
+                    TotalExpPackTHB : 0,
+                    TotalExplanding : 0,
+                    CurExplanding : '',
+                    CurExplandingRate : 1,
+                    AvgExplanding : '',
+                    TotalExplandingTHB :0,
+                    TotalExpOther : 0,
+                    CurExpOther : '',
+                    CurExpOtherRate : 1,
+                    AvgExpOther : '',
+                    TotalExpOtherTHB : 0,
+                    AvgExp2Free : 0,
+                    RecDate : '1900-01-01',
+                    RecTime : '00:00:00',
+                    RecByUser : '',
+                    UIDTransmit : '',
+                    SignDate : '1900-01-01',
+                    SignTime : '00:00:00',
+                    SignBy : '',
+                    FileToSend : '',
+                    ResponseStatus : 0,
+                    IsCancel : 0,
+                    InvoiceType : 0,
+                    PoNo : '',
+                    PaymentTerm : '',
+                    TotalIncreasedPrice : 0,
+                    OtherChargeDesc : '',
+                    TotalIncreasedPriceTHB :0,
+                    IsNotAutoCal : 0,
+                    SelfCertRemark : '',
+                    AEOsReferNo : '',
+                    NotifyStreet : '',
+                    NotifyDistrict : '',
+                    NotifySubProvice : '',
+                    NotifyProvince : '',
+                    NotifyPostCode : ''
+                };
+                return obj;
+            }
+            function GetStruct_DecInvoice_Detail()
+            {
+			    var obj={
+                    BranchCode : '',
+                    RefNO : '',
+                    InvNO : '',
+                    ItemNO : 0,
+                    GroupCode : 'PDT',
+                    PdtCode : '',
+			        PdtSubCode : '',
+                    BrandName : '',
+                    ShippingMark : '',
+                    PdtDescription : '',
+                    PdtDescriptionEN : '',
+                    DRemark : '',
+                    DPurchaseCountry : '',
+                    DOriginCountry : '',
+                    ProductAttribute1 : '',
+                    ProductAttribute2 : '',
+			        SeperateItem : 'Y',
+                    IsFreeOfChage : 0,
+                    TariffCode : '',
+                    TariffSeq : '',
+                    StatCode : '',
+                    RTCProductCode : '',
+                    ProductYear : '',
+                    NetWeight : 0,
+                    WeightUnit : '',
+                    GrossWeight : 0,
+                    TariffQty : 0,
+                    TariffUnit : '',
+                    ConstantValue : '',
+                    SalesPackQty : 0,
+                    SalesPackUnit : '',
+                    SalesPrice : 0,
+                    SalesTotalPrice : 0,
+                    SalesNetPriceTHB : 0,
+			        SalesFOBPriceTHB : 0,
+                    PackAmount : 0,
+                    PackUnit : '',
+                    ExpShipping : 0,
+                    ExpShippingTHB : 0,
+                    ExpFreight : 0,
+                    ExpFreightTHB : 0,
+                    ExpInsurance : 0,
+                    ExpInsuranceTHB : 0,
+                    ExpForward : 0,
+                    ExpForwardTHB : 0,
+                    ExpInLand : 0,
+                    ExpInLandTHB : 0,
+                    ExpPacking : 0,
+                    ExpPackingTHB : 0,
+                    ExpLanding : 0,
+                    ExpLandingTHB : 0,
+                    ExpOther : 0,
+                    ExpOtherTHB : 0,
+			        DeclareLineNo : 0,
+                    IncreasedPrice : 0,
+                    IncreasedPriceTHB : 0,
+                    FormulaNo : '',
+                    BondFormulaNo : '',
+                    BOILicenseNo : '',
+                    PermitNo : '',
+                    Bis19TransferNo : '',
+			        DutyCalcBy : '',
+                    DutyPRatePay : 0,
+                    DutySRatePay : 0,
+                    DutyDeduct : 0,
+                    WeightPerUnit : 0,
+                    WeightPerPack : 0,
+                    ItmOther1 : '',
+                    ItmOther2 : '',
+					ItmOther3 : '',
+		            ItmOther4 : '',
+					ItmOther5 : '',
+					ItmOther6 : '',
+					ItmOther7 : '',
+					ItmOther8 : '',
+					ItmOther9 : '',
+					ItmOther10 : '',
+                    SalesPackAddQty : 0,
+                    SalesPackAddUnit : '',
+                    PackAddAmount : 0,
+                    PackAddUnit : '',
+			        ModelVer :'',
+			        ModelCmpTaxNo :'',
+			        Royalty : '',
+			        RoyaltyDetail : ''
+                };
+                return obj;
+            }
             function clearForm()
             {
                 loadInvList();
+    			currentDoc = GetStruct_DecInvoice_Header();
 
-                $('#txtDecNo').val('');
+    			$('#txtDecNo').val('');
                 $('#txtInvDate').val('');
-			    $('#txtInvNo').val('');
+                $('#txtInvNo').val('');
                 $('#txtPoNo').val('');
                 $('#selBranch').val('');
                 $('#selInvNo').val('');
@@ -436,6 +683,7 @@
                 $('#txtCompAddr2').val('');
                 $('#selCommStatus').val('');
                 $('#selCommLevel').val('');
+
                 $('#selConsCode').val('');
                 $('#txtConsName').val('');
                 $('#txtConsAddr1').val('');
@@ -443,6 +691,15 @@
                 $('#selConsCountry').val('');
                 $('#txtConsCountry').val('');
                 $('#txtConsEmail').val('');
+			    $('#selConsStatus').val('');
+			    $('#selConsTerm').val('');
+
+			    $('#txtNotifyCode').val('');
+                $('#txtNotifyName').val('');
+                $('#txtNotifyAddr1').val('');
+                $('#txtNotifyAddr2').val('');
+                $('#selNotifyCountry').val('');
+                $('#txtNotifyCountry').val('');
 
                 $('#txtNetW').val('');
                 $('#txtGrossW').val('');
@@ -510,16 +767,18 @@
                 $('#txtSaveTime').val('');
                 $('#txtSaveBy').val('');
 
+                var table = $('#tbDetails').DataTable();
+                table
+                    .clear()
+                    .draw();
+			    DocDetail=[];
+                idxRow = -1;
                 clearDetail();
             }
-			function clearDetail()
-			{
-			    var table = $('#tbDetails').DataTable();
-				table
-					.clear()
-					.draw();
-				idxRow = -1;
-				DocDetail = [];
+            function clearDetail()
+            {
+                currentRow = GetStruct_DecInvoice_Detail();
+
                 $('#txtItemNo').val('');
                 $('#txtProdCode').val('');
                 $('#txtProdDescTH').val('');
@@ -574,7 +833,7 @@
                 $('#txtGWUnit').val('');
                 $('#txtWeightGross').val('');
                 $('#txtFOBPrice').val('');
-			    $('#txtShippingMark').val('');
+                $('#txtShippingMark').val('');
 
                 $('#txtAddItemPrice').val('');
                 $('#txtItemDesc1').val('');
@@ -609,17 +868,13 @@
                 $('#txtItemThLanC1').val('');
                 $('#txtItemFrOthC1').val('');
                 $('#txtItemThOthC1').val('');
-			}
-			//ฟังก์ชั่นปริ้นฟอร์ม
-			function showForm()
-			{
+            }
 
-			}
             //ส่วนของ Popup Form สำหรับ user เลือกข้อมูลหรือค้นหาข้อมูล
-	        function getRowData(tb, e) {
-	            var indexRow = $(e).parents('tr');
-	            return $(tb).DataTable().row(indexRow).data();
-	        }
+            function getRowData(tb, e) {
+                var indexRow = $(e).parents('tr');
+                return $(tb).DataTable().row(indexRow).data();
+            }
             function searchCountry(obj) {
                 $('#tbLOV').DataTable({
                     data:CountryList,
@@ -684,6 +939,50 @@
                 });
                 $('#modalSearch').modal('show');
             }
+           function searchNotify() {
+                $('#tbLOV').DataTable({
+                    data:NotifyList,
+                    selected:true,
+                    columns:[
+                        { data: null ,title:"#"},
+                        { data: "ConTo", title: "รหัส" },
+                        { data: "NameEng", title: "ชื่อ" }
+                    ],
+                    "columnDefs": [
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>"+ data.TaxNumber+"</button>";
+                                return html;
+                            }
+                        }
+                    ],
+                    destroy: true
+                });
+                $('#tbLOV tbody').on('click', 'tr', function () {
+                    $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+                $('#tbLOV tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbLOV', this);
+                    for(var i=0;i< NotifyList.length;i++)
+                    {
+                        if(NotifyList[i].ConTo==dt.ConTo)
+                        {
+                            $('#txtNotifyCode').val(dt.ConTo);
+							$('#txtNotifyName').val(dt.NameEng);
+							$('#txtNotifyAddr1').val(dt.Address1 +' ' +dt.Address2);
+							$('#txtNotifyAddr2').val(dt.EmailAddress);
+							$('#selNotifyCountry').val(dt.CountryCode).change();
+
+                            break;
+                        }
+                    }
+                    $('#modalSearch').modal('hide');
+                });
+                $('#modalSearch').modal('show');
+            }
             function searchConsignee() {
                 $('#tbLOV').DataTable({
                     data:ConsigneeList,
@@ -723,16 +1022,16 @@
                 });
                 $('#modalSearch').modal('show');
             }
-			function searchCompany() {
-			    $('#tbLOV').DataTable({
-			        data:CompanyList,
-			        selected:true,
-			        columns:[
+            function searchCompany() {
+                $('#tbLOV').DataTable({
+                    data:CompanyList,
+                    selected:true,
+                    columns:[
                         { data: null ,title:"#"},
                         { data: "CustCode", title: "รหัส" },
                         { data: "NameThai", title: "ชื่อ" }
-			        ],
-			        "columnDefs": [
+                    ],
+                    "columnDefs": [
                         {
                             "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
                             "data": null,
@@ -743,12 +1042,12 @@
                         }
                     ],
                     destroy: true
-		        });
+                });
                 $('#tbLOV tbody').on('click', 'tr', function () {
                     $('#tbLOV tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
                     $(this).addClass('selected'); //select row ใหม่
                 });
-	            $('#tbLOV tbody').on('click', 'button', function () {
+                $('#tbLOV tbody').on('click', 'button', function () {
                     var dt = getRowData('#tbLOV', this);
                     for(var i=0;i< CompanyList.length;i++)
                     {
@@ -760,23 +1059,23 @@
                     }
                     $('#modalSearch').modal('hide');
                 });
-			    $('#modalSearch').modal('show');
-			}
-			function searchTariffCode()
-			{
-			    var str=$('#txtTariffCode').val();
-			    $('#tbTariff').DataTable({
+                $('#modalSearch').modal('show');
+            }
+            function searchTariffCode()
+            {
+                var str=$('#txtTariffCode').val();
+                $('#tbTariff').DataTable({
                     ajax : {
-			            url: tariffCodePath + '?filter=' + str
-			            ,dataSrc:''
-			        },
+                        url: tariffCodePath + '?filter=' + str
+                        ,dataSrc:''
+                    },
                     selected:true,
                     columns:[
-			            { data: null ,title:"#"},
+                        { data: null ,title:"#"},
                         { data: "TariffClass" ,title:"พิกัดศุลกากร"},
                         { data: "TariffStatCode", title: "รหัสสถิติ" },
                         { data: "Desc1", title: "คำอธิบายไทย" },
-			            { data: "Desc2", title: "คำอธิบายอังกฤษ" },
+                        { data: "Desc2", title: "คำอธิบายอังกฤษ" },
                         { data: "GoodsUnitCode", title: "หน่วย" }
                     ],
                     "columnDefs": [
@@ -798,14 +1097,14 @@
                 $('#tbTariff tbody').on('click', 'button', function () {
                     var dt = getRowData('#tbTariff', this);
 
-			        $('#txtTariffCode').val(dt.TariffClass);
-			        $('#txtStatCode').val(dt.TariffStatCode);
-			        setUnit('#selTariffUnit',dt.GoodsUnitCode);
+                    $('#txtTariffCode').val(dt.TariffClass);
+                    $('#txtStatCode').val(dt.TariffStatCode);
+                    setUnit('#selTariffUnit',dt.GoodsUnitCode);
 
                     $('#modalTariff').modal('hide');
                 });
                 $('#modalTariff').modal('show');
-			}
+            }
             function searchTariffDutyRate()
             {
                 var str=$('#txtTariffCode').val();
@@ -821,7 +1120,7 @@
                         { data: "DTYCDE", title: "คำนวณตาม" },
                         { data: "DTYYRTE", title: "อัตราอากร" },
                         { data: "SPECDE", title: "ตามสภาพ" },
-			            { data: "PRVCDE", title: "สิทธิประโยชน์" }
+                        { data: "PRVCDE", title: "สิทธิประโยชน์" }
                     ],
                     "columnDefs": [
                         {
@@ -845,32 +1144,32 @@
                     $('#txtTariffSeq').val(dt.TRFSEQ);
                     $('#txtDutyRate').val(dt.DTYYRTE);
 
-			        $('#modalTariffSeq').modal('hide');
+                    $('#modalTariffSeq').modal('hide');
                 });
                 $('#modalTariffSeq').modal('show');
             }
-		    function searchInv() {
-		        $('#tbInv').DataTable({
-		            data: DocList,
-		            selected: true, //ให้สามารถเลือกแถวได้
-		            columns: [ //กำหนด property ของ header column
-		                { data: null ,title:"#"},
-		                { data: "RefNO", title: "Ref No" },
-		                { data: "InvNO", title: "Inv No" },
-			            { data: null, title: "Inv Date"},
-			            { data: null, title: "Inv Owner"},
-			            { data: "CmpTaxNumber", title:"Tax Number"},
+            function searchInv() {
+                $('#tbInv').DataTable({
+                    data: DocList,
+                    selected: true, //ให้สามารถเลือกแถวได้
+                    columns: [ //กำหนด property ของ header column
+                        { data: null ,title:"#"},
+                        { data: "RefNO", title: "Ref No" },
+                        { data: "InvNO", title: "Inv No" },
+                        { data: null, title: "Inv Date"},
+                        { data: null, title: "Inv Owner"},
+                        { data: "CmpTaxNumber", title:"Tax Number"},
                         { data: "BuyerName", title:"Buyer name"}
-		            ],
-		            "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
-		                {
-		                    "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
-		                    "data": null,
-		                    "render": function (data, type, full, meta) {
-		                        var html = "<button class='btn btn-warning'>Select</button>";
-		                        return html;
-		                    }
-		                },
+                    ],
+                    "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
+                        {
+                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+                            "data": null,
+                            "render": function (data, type, full, meta) {
+                                var html = "<button class='btn btn-warning'>Select</button>";
+                                return html;
+                            }
+                        },
                         {
                             "targets": 3, //column ที่ 3
                             "data": null,
@@ -879,62 +1178,63 @@
                                 return html;
                             }
                         },
-			            {
+                        {
                             "targets": 4, //column ที่ 4
                             "data": null,
                             "render": function (data, type, full, meta) {
                                 var html=data.CmpCode +' / '+ data.CmpBranch;
                                 return html;
                             }
-			            }
-		            ],
-		            destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
-		        });
-		        $('#tbInv tbody').on('click', 'tr', function () {
-		            $('#tbInv tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
-		            $(this).addClass('selected'); //select row ใหม่
-		        });
-		        $('#tbInv tbody').on('click', 'button', function () {
-		            var dt = getRowData('#tbInv', this);
+                        }
+                    ],
+                    destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+                });
+                $('#tbInv tbody').on('click', 'tr', function () {
+                    $('#tbInv tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                    $(this).addClass('selected'); //select row ใหม่
+                });
+                $('#tbInv tbody').on('click', 'button', function () {
+                    var dt = getRowData('#tbInv', this);
 
                     $('#selBranch').val(dt.BranchCode);
                     $('#selRefNo').val(dt.RefNO);
-			        filterInv();
-			        $('#selInvNo').val(dt.InvNO);
+                    filterInv();
+                    $('#selInvNo').val(dt.InvNO);
 
-			        loadData();
-		            $('#modalInv').modal('hide');
-		        });
-		        $('#modalInv').modal('show');
-		    }
+                    loadData();
+                    $('#modalInv').modal('hide');
+                });
+                $('#modalInv').modal('show');
+            }
             //ฟังก์ชั่นสำหรับการโหลดข้อมูล
-			function filterInv()
-			{
-			    var ref = $('#selRefNo').val();
-				var invFilter = $.grep(DocList, function(data) {
-				    return data.RefNO === ref;
-				});
-			    loadInvNo(invFilter);;
-			}
-			function loadData()
-			{
-			    var inv = $('#selInvNo').val();
-			    var ref = $('#selRefNo').val();
-			    var invFilter = $.grep(DocList, function(data) {
+            function filterInv()
+            {
+                var ref = $('#selRefNo').val();
+                var invFilter = $.grep(DocList, function(data) {
+                    return data.RefNO === ref;
+                });
+                loadInvNo(invFilter);;
+            }
+            function loadData()
+            {
+                var inv = $('#selInvNo').val();
+                var ref = $('#selRefNo').val();
+                var invFilter = $.grep(DocList, function(data) {
                     return data.InvNO === inv && data.RefNO=== ref;
                 });
-			    if(invFilter.length>0)
-			    {
-			        loadHeader(invFilter[0]);
-			    }
-			}
+                if(invFilter.length>0)
+                {
+                    loadHeader(invFilter[0]);
+                }
+            }
             function loadHeader(dt)
             {
+			    currentDoc=dt;
                 $('#txtInvNo').val(dt.InvNO);
                 $('#txtDecNo').val(dt.TrackingNO);
                 $('#txtInvDate').val(JSDate(dt.InvDate));
                 $('#txtPoNo').val(dt.PoNo);
-                $('#selTermTrade').val(dt.PaymentTerm);
+                $('#selTermTrade').val(dt.IncoTerms);
                 $('#txtImExDate').val(JSDate(dt.DepartureDate));
 
                 $('#selCurrency').val(dt.InvCurrency).change();
@@ -954,6 +1254,15 @@
                 $('#txtConsAddr2').val(dt.Province + ' ' + dt.Postcode);
                 $('#selConsCountry').val(dt.PurchaseCountry).change();
                 $('#txtConsEmail').val(dt.EmailAddr);
+                $('#selConsStatus').val(dt.ConsigneeStatus);
+			    $('#selConsTerm').val(dt.PaymentTerm);
+
+			    $('#txtNotifyCode').val(dt.NotifyPartyCode);
+
+			    $('#txtNotifyName').val(dt.NotifyPartyName);
+                $('#txtNotifyAddr1').val(dt.NotifyPartyAddr);
+                $('#txtNotifyAddr2').val(dt.NotifyPartyEmail);
+                $('#selNotifyCountry').val(dt.DestinationCountry).change();
 
                 $('#txtNetW').val(dt.TotalNetW);
                 $('#txtGrossW').val(dt.TotalNetW);
@@ -1035,34 +1344,35 @@
 
                 loadDataDetail(dt.RefNO,dt.InvNO);
             }
-			function loadDataDetail(refno,invno)
+            function loadDataDetail(refno,invno)
             {
-			    $.get(detailPath + '?RefNo=' + refno + '&InvNo=' + invno)
-			    .done(function (data) {
-			        DocDetail = data;
-			        tb = $('#tbDetails').DataTable({
-			            data: DocDetail,
-			            selected: true,
-			            columns: [
+                $.get(detailPath + '?RefNo=' + refno + '&InvNo=' + invno)
+                .done(function (data) {
+                    DocDetail = data;
+                    tb = $('#tbDetails').DataTable({
+                        data: DocDetail,
+                        selected: true,
+                        columns: [
                             { data: "ItemNO", title: "ลำดับที่" },
                             { data: "PdtDescription", title: "รายการ" }
-			            ],
-			            pagelength: 5,
-			            destroy: true
-			        });
-			        $('#tbDetails tbody').on('click', 'tr', function () {
-			            $('#tbDetails tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
-			            $(this).addClass('selected'); //select row ใหม่
+                        ],
+                        pagelength: 5,
+                        destroy: true
+                    });
+                    $('#tbDetails tbody').on('click', 'tr', function () {
+                        $('#tbDetails tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+                        $(this).addClass('selected'); //select row ใหม่
 
-			            var dt = tb.row(this).data();
-			            idxRow = tb.row(this).index();
-			            loadDetail(dt);
-			        });
-			    });
-                
-			}
-			function loadDetail(dt)
-			{
+                        var dt = tb.row(this).data();
+                        idxRow = tb.row(this).index();
+                        loadDetail(dt);
+                    });
+                });
+
+            }
+            function loadDetail(dt)
+            {
+			    currentRow=dt;
                 $('#txtItemNo').val(dt.ItemNO);
                 $('#txtProdCode').val(dt.PdtCode);
                 $('#txtProdDescEN').val(dt.PdtDescriptionEN);
@@ -1136,17 +1446,17 @@
                 $('#txtItemThLanC1').val(dt.ExpLandingTHB);
                 $('#txtItemFrOthC1').val(dt.ExpOther);
                 $('#txtItemThOthC1').val(dt.ExpOtherTHB);
-			}
-			function ReadData(val)
-			{
-			    var idx=idxRow+val;
-			    if(idx>=0)
-			    {
-			        idxRow=idx;
-			        var dt=DocDetail[idxRow];
-			        if(dt!=undefined)
-					{
-			            var idxPage = 0;                        
+            }
+            function ReadData(val)
+            {
+                var idx=idxRow+val;
+                if(idx>=0)
+                {
+                    idxRow=idx;
+                    var dt=DocDetail[idxRow];
+                    if(dt!=undefined)
+                    {
+                        var idxPage = 0;
                         if(idx>=10)
                         {
                             idxPage = Math.floor(idxRow / 10);
@@ -1157,10 +1467,228 @@
 
                         $('#tbDetails tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
                         $('#tbDetails tbody tr:eq('+idx+')').addClass('selected');
-			            loadDetail(dt);
-					}
-			    }
+                        loadDetail(dt);
+                    }
+                }
+            }
+			function GetDataHeader()
+			{
+			    var obj={
+			        BranchCode : $('#selBranch').val(),
+				    RefNO : $('#selRefNo').val(),
+			        InvNO : $('#txtInvNo').val(),
+	                InvDate : $('#txtInvDate').val(),
+                    TrackingNO : $('#txtDecNo').val(),
+			        DocStatus : currentDoc.DocStatus,
+                    CmpCode : ($('#selCompCode').val() >=0? CompanyList[$('#selCompCode').val()].CustCode :''),
+                    CmpTaxNumber : $('#txtCompTaxID').val(),
+                    CmpBranch : $('#txtCompBranch').val(),
+			        SellerStatus : $('#selCommStatus').val(),
+			        ConsigneeStatus : $('#selConsStatus').val(),
+                    CommercialLevel : $('#selCommLevel').val(),
+                    BuyerCode : ($('#selConsCode').val()>=0? ConsigneeList[$('#selConsCode').val()].Code :''),
+                    BuyerName : $('#txtConsName').val(),
+                    Street : ($('#selConsCode').val()>=0? ConsigneeList[$('#selConsCode').val()].TAddress :''),
+                    District : ($('#selConsCode').val()>=0? ConsigneeList[$('#selConsCode').val()].TDistrict :''),
+			        Subprovince : ($('#selConsCode').val()>=0?ConsigneeList[$('#selConsCode').val()].TSubProvince :''),
+                    Province : ($('#selConsCode').val()>=0?ConsigneeList[$('#selConsCode').val()].TProvince:''),
+                    PostCode : ($('#selConsCode').val()>=0?ConsigneeList[$('#selConsCode').val()].TPostCode:''),
+			        EmailAddr : $('#txtConsEmail').val(),
+			        ConsigneeAddr : ($('#selConsCode').val()>=0?ConsigneeList[$('#selConsCode').val()].Address1 + ' ' + ConsigneeList[$('#selConsCode').val()].Address2:''),
+                    PurchaseCountry : $('#selConsCountry').val(),
+			        NotifyPartyCode : $('#txtNotifyCode').val(),
+			        NotifyPartyName : $('#txtNotifyName').val(),
+                    NotifyPartyAddr : $('#txtNotifyAddr1').val(),
+                    NotifyPartyEmail : $('#txtNotifyAddr2').val(),
+                    DestinationCountry : $('#selNotifyCountry').val(),
+                    DepartureDate : $('#txtImExDate').val(),
+                    IncoTerms : $('#selTermTrade').val(),
+                    InvCurrency : $('#selCurrency').val(),
+                    InvCurRate : $('#txtExchangeRate').val(),
+                    TotalNetW : $('#txtGrossW').val(),
+                    NetWUnit : $('#selWeightUnit :selected').text(),
+                    TotalInvoice : $('#txtTotalForeign').val(),
+                    TotalinvTHB : $('#txtTotalTHB').val(),
+	                TotalExpShipping : $('#txtShpCharge').val(),
+	                CurExpShp : $('#selShpCurrency').val(),
+	                CurExpShpRate : $('#txtShpExcRate').val(),
+	                AvgExpShp : $('#txtShpType').val(),
+	                TotalExpShippingTHB : $('#txtShpTotal').val(),
+	                TotalExpFreight : $('#txtFreCharge').val(),
+	                CurExpFrg : $('#selFreCurrency').val(),
+	                CurExpFrgRate : $('#txtFreExcRate').val(),
+	                AvgExpFrg : $('#txtFreType').val(),
+	                TotalExpFreightTHB : $('#txtFreTotal').val(),
+	                TotalExpInsurance : $('#txtInsCharge').val(),
+	                CurExpIns : $('#selInsCurrency').val(),
+	                CurExpInsRate : $('#txtInsExcRate').val(),
+	                AvgExpIns : $('#txtInsType').val(),
+	                TotalExpInsuranceTHB : $('#txtInsTotal').val(),
+	                TotalExpForward : $('#txtFwdCharge').val(),
+	                CurExpFwd : $('#selFwdCurrency').val(),
+	                CurExpFwdRate : $('#txtFwdExcRate').val(),
+	                AvgExpFwd : $('#txtFwdType').val(),
+	                TotalExpForwardTHB : $('#txtFwdTotal').val(),
+	                TotalExpInland : $('#txtInlCharge').val(),
+	                CurExpInland : $('#selInlCurrency').val(),
+	                CurExpInlandRate : $('#txtInlExcRate').val(),
+	                AvgExpInland : $('#txtInlType').val(),
+	                TotalExpInlandTHB : $('#txtInlTotal').val(),
+	                TotalExpPack : $('#txtPacCharge').val(),
+	                CurExpPack : $('#selPacCurrency').val(),
+	                CurExpPackRate : $('#txtPacExcRate').val(),
+	                AvgExpPack : $('#txtPacType').val(),
+	                TotalExpPackTHB : $('#txtPacTotal').val(),
+	                TotalExplanding : $('#txtLndCharge').val(),
+	                CurExplanding : $('#selLndCurrency').val(),
+	                CurExplandingRate : $('#txtLndExcRate').val(),
+	                AvgExplanding : $('#txtLndType').val(),
+	                TotalExplandingTHB : $('#txtLndTotal').val(),
+	                TotalExpOther : $('#txtOthCharge').val(),
+	                CurExpOther : $('#selOthCurrency').val(),
+	                CurExpOtherRate : $('#txtOthExcRate').val(),
+	                AvgExpOther : $('#txtOthType').val(),
+	                TotalExpOtherTHB : $('#txtOthTotal').val(),
+                    AvgExp2Free : $('#chkCalSample').prop('checked')==true ? 1 : 0,
+			        RecDate : currentDoc.RecDate,
+			        RecTime : currentDoc.RecTime,
+                    RecByUser : currentDoc.RecByUser,
+			        UIDTransmit : currentDoc.UIDTransmit,
+			        SignDate : currentDoc.SignDate,
+			        SignTime : currentDoc.SignTime,
+			        SignBy : currentDoc.SignBy,
+			        FileToSend : currentDoc.FileToSend,
+                    ResponseStatus : currentDoc.ResponseStatus,
+			        IsCancel : currentDoc.IsCancel,
+			        InvoiceType : currentDoc.InvoiceType,
+                    PoNo : $('#txtPoNo').val(),
+                    PaymentTerm : $('#selConsTerm').val(),
+                    TotalIncreasedPrice : $('#txtTotalF').val(),
+                    OtherChargeDesc : $('#txtOtherDetail').val(),
+                    TotalIncreasedPriceTHB : $('#txtTotalB').val(),
+                    IsNotAutoCal : currentDoc.IsNotAutoCal,
+			        SelfCertRemark : currentDoc.SelfCertRemark,
+			        AEOsReferNo : currentDoc.AEOReferNo,
+			        NotifyStreet : currentDoc.NotifyStreet,
+			        NotifyDistrict : currentDoc.NotifyDistrict,
+			        NotifySubProvice : currentDoc.NotifySubProvince,
+			        NotifyProvince : currentDoc.NotifyProvince,
+			        NotifyPostCode : currentDoc.NotifyPostCode
+			    };
+			    return obj;
 			}
+			function GetDataDetail()
+			{
+			    var obj={
+			        BranchCode : $('#selBranch').val(),
+			        RefNO : $('#selRefNo').val(),
+			        InvNO : $('#txtInvNo').val(),
+				    ItemNO : $('#txtItemNo').val(),
+	                GroupCode : 'PDT',
+			        PdtCode : $('#txtProdCode').val(),
+			        PdtSubCode : $('#txtProdCode').val(),
+	                PdtDescription : $('#txtProdDescTH').val(),
+	                PdtDescriptionEN : $('#txtProdDescEN').val(),
+	                BrandName : $('#txtProdBrand').val(),
+			        ShippingMark : $('#txtShippingMark').val(),
+	                DRemark : $('#txtProdRemark').val(),
+                    DPurchaseCountry : $('#selFCountry').val(),
+                    DOriginCountry : $('#selOCountry').val(),
+                    ProductAttribute1 : $('#txtMisc1').val(),
+                    ProductAttribute2 : $('#txtMisc2').val(),
+                    SeperateItem : $('#chkSeperateNo').prop('checked')==true ? 'Y':'N',
+                    IsFreeOfChage : $('#chkIsSample').prop('checked')==true ? 1 :0,
+	                TariffCode : $('#txtTariffCode').val(),
+	                TariffSeq : $('#txtTariffSeq').val(),
+	                StatCode : $('#txtStatCode').val(),
+			        RTCProductCode : $('#txtCustomsPCode').val(),
+                    ProductYear : $('#txtProductYear').val(),
+			        NetWeight : $('#txtWeightNet').val(),
+                    WeightUnit : $('#selGWUnit :selected').text(),
+                    GrossWeight : $('#txtWeightGross').val(),
+                    TariffQty : $('#txtTariffQty').val(),
+                    TariffUnit : $('#selTariffUnit :selected').val(),
+			        ConstantValue : $('#txtCustomsConst').val(),
+                    SalesPackQty : $('#txtInvQty').val(),
+                    SalesPackUnit : $('#selInvUnit :selected').text(),
+                    SalesPrice : $('#txtUnitPrice').val(),
+                    SalesTotalPrice : $('#txtTariffAmt').val(),
+                    SalesNetPriceTHB : $('#txtTotalInv').val(),
+                    SalesFOBPriceTHB : $('#txtFOBPrice').val(),
+			        PackAmount : $('#txtPackQty').val(),
+                    PackUnit : $('#selPackUnit :selected').text(),
+			        ExpShipping : $('#txtItemFrShpC1').val(),
+                    ExpShippingTHB : $('#txtItemThShpC1').val(),
+                    ExpFreight : $('#txtItemFrFreC1').val(),
+                    ExpFreightTHB : $('#txtItemThFreC1').val(),
+                    ExpInsurance : $('#txtItemFrInsC1').val(),
+                    ExpInsuranceTHB : $('#txtItemThInsC1').val(),
+                    ExpForward : $('#txtItemFrFwdC1').val(),
+                    ExpForwardTHB : $('#txtItemThFwdC1').val(),
+                    ExpInLand : $('#txtItemFrInlC1').val(),
+                    ExpInLandTHB : $('#txtItemThInlC1').val(),
+                    ExpPacking : $('#txtItemFrPakC1').val(),
+                    ExpPackingTHB : $('#txtItemThPakC1').val(),
+                    ExpLanding : $('#txtItemFrLanC1').val(),
+                    ExpLandingTHB : $('#txtItemThLanC1').val(),
+                    ExpOther : $('#txtItemFrOthC1').val(),
+                    ExpOtherTHB : $('#txtItemThOthC1').val(),
+			        IncreasedPrice : $('#txtAddPrice').val(),
+                    IncreasedPriceTHB : $('#txtAddItemPrice').val(),
+                    DeclareLineNo : $('#txtSeperateNo').val(),
+			        FormulaNo : $('#txtFormulaBond19Bis').val(),
+                    BondFormulaNo : $('#txtFormulaVersion').val(),
+                    BOILicenseNo : $('#txtFormulaTaxID').val(),
+                    PermitNo : $('#txtBOINo').val(),
+                    Bis19TransferNo : $('#txtTransferNo').val(),
+			        DutyCalcBy : $('#selCalMethod').val(),
+	                DutyPRatePay : $('#txtDutyRate').val(),
+	                DutySRatePay : $('#txtCalByState').val(),
+	                DutyDeduct : $('#txtDispense').val(),
+                    WeightPerUnit : $('#txtWeightItem').val(),
+	                WeightPerPack : $('#txtWeightPackage').val(),
+                    ItmOther1 : currentRow.ItmOther1,
+			        ItmOther2 : currentRow.ItmOther2,
+                    ItmOther3 : currentRow.ItmOther3,
+					ItmOther4 : currentRow.ItmOther4,
+		            ItmOther5 : currentRow.ItmOther5,
+					ItmOther6 : currentRow.ItmOther6,
+					ItmOther7 : currentRow.ItmOther7,
+					ItmOther8 : currentRow.ItmOther8,
+					ItmOther9 : currentRow.ItmOther9,
+					ItmOther10 : currentRow.ItmOther10,
+                    SalesPackAddQty : $('#txtAddInvQty').val(),
+                    SalesPackAddUnit : $('#selAddInvUnit :selected').text(),
+                    PackAddAmount : $('#txtAddPackQty').val(),
+                    PackAddUnit : $('#selAddPackUnit :selected').text(),
+                    ModelVer : currentRow.ModelVer,
+			        ModelCmpTaxNo : currentRow.ModelCmpTaxNo,
+                    Royalty : currentRow.Royalty,
+			        RoyaltyDetail : currentRow.RoyaltyDetail
+			    };
+			    return obj;
+			}
+			function SaveHeader()
+			{
+			    var data=GetDataHeader();
+			    $.post(urlSaveH,data)
+                .done(function (response) {
+                    alert(JSON.stringify(response));
+            });
+			}
+            function SaveDetail()
+			{
+			    var data=GetDataDetail();
+	            $.post(urlSaveD,data)
+	                .done(function (response) {
+	                    alert(JSON.stringify(response));
+	            });
+			}
+			//ฟังก์ชั่นปริ้นฟอร์ม
+            function showForm()
+            {
+
+            }
     </script>
 </head>
 <body>
@@ -1372,6 +1900,7 @@
                                             </td>
                                         </tr>
                                     </table>
+                                    <hr />
                                     <table id="tbInvComm7">
                                         <tr>
                                             <td>ผู้ซื้อขายต่างประเทศ :</td>
@@ -1387,7 +1916,14 @@
                                                 <button id="btnGetCons" onclick="searchConsignee()">...</button>
                                             </td>
                                             <td>
-                                                <!--<button id="btnCopyCons">C</button>-->
+                                                ประเทศต้นทาง :
+                                            </td>
+                                            <td>
+                                                <!--<input type="text" id="txtConsCountry" value="JP / JAPAN" class="form-control" />-->
+                                                <select id="selConsCountry" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtConsCountry" class="form-control" />
                                             </td>
                                         </tr>
                                     </table>
@@ -1406,26 +1942,73 @@
                                                 <input type="text" id="txtConsAddr2" class="form-control" style="width:100%" />
                                             </td>
                                         </tr>
-                                    </table>
-                                    <table id="tbInvComm9">
                                         <tr>
-                                            <td>
-                                                รหัสประเทศ :
-                                            </td>
-                                            <td>
-                                                <!--<input type="text" id="txtConsCountry" value="JP / JAPAN" class="form-control" />-->
-                                                <select id="selConsCountry" class="form-control dropdown"></select>
-                                            </td>
-                                            <td>
-                                                <input type="text" id="txtConsCountry" class="form-control" />
-                                            </td>
                                             <td>E-mail : </td>
                                             <td>
                                                 <input type="text" id="txtConsEmail" class="form-control" style="width:100%" />
                                             </td>
                                         </tr>
                                     </table>
+                                    <table id="tbInvComm9">
+                                        <tr>
+                                            <td>
+                                                สถานะ :
+                                            </td>
+                                            <td>
+                                                <!--<input type="text" id="txtCompStatus" value="BR / Broker" class="form-control" />-->
+                                                <select id="selConsStatus" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>เงื่อนไขการซื้อขาย :</td>
+                                            <td>
+                                                <!--<input type="text" id="txtCompLevel" value="WO / Wholeseller" class="form-control" />-->
+                                                <select id="selConsTerm" class="form-control dropdown"></select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <hr />
                                     <table id="tbInvComm10">
+                                        <tr>
+                                            <td>ผู้รับสินค้า :</td>
+                                            <td>
+                                                <input type="text" id="txtNotifyCode" value="" class="form-control" />
+                                            </td>
+                                            <td>ชื่อ :</td>
+                                            <td>
+                                                <input type="text" id="txtNotifyName" class="form-control" style="width:100%" />
+                                            </td>
+                                            <td>
+                                                <button id="btnGetNotify" onclick="searchNotify()">...</button>
+                                            </td>
+                                            <td>
+                                                ประเทศปลายทาง :
+                                            </td>
+                                            <td>
+                                                <select id="selNotifyCountry" class="form-control dropdown"></select>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtNotifyCountry" class="form-control" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <table id="tbInvComm11" style="width:100%">
+                                        <tr style="width:100%">
+                                            <td>
+                                                ที่อยู่ :
+                                            </td>
+                                            <td>
+                                                <input type="text" id="txtNotifyAddr1" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+                                        <tr style="width:100%">
+                                            <td>E-mail</td>
+                                            <td>
+                                                <input type="text" id="txtNotifyAddr2" class="form-control" style="width:100%" />
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                    <hr />
+                                    <table id="tbInvComm12">
                                         <tr>
                                             <td>
                                                 Net Weight :
@@ -1611,7 +2194,7 @@
                                                     <input type="text" id="txtProdCode" />
                                                 </td>
                                                 <td>
-                                                    <!--<button id="blnBrowseProduct">...</button>-->
+                                                    <button id="blnNewProduct" onclick="clearDetail()">+</button>
                                                 </td>
                                             </tr>
                                         </table>
@@ -1682,7 +2265,7 @@
                                             <!--<button id="btnRemark" class="btn btn-warning">บันทึกเพิ่มเติม</button> -->
                                         </td>
                                         <td>
-                                            <button id="btnSaveLine" class="btn btn-success">บันทึกรายการ</button>
+                                            <button id="btnSaveLine" class="btn btn-success" onclick="SaveDetail()">บันทึกรายการ</button>
                                         </td>
                                         <td>
                                             <button id="btnDeleteLine" class="btn btn-danger">ลบรายการ</button>
@@ -2138,7 +2721,7 @@
                 <td style="width:60%">
                     <button class="btn btn-default" id="btnClear" onclick="clearForm()">เคลียร์</button>
                     <button class="btn btn-default" id="btnPreview" onclick="showForm()">พิมพ์</button>
-                    <button class="btn btn-default" id="btnSave">บันทึก</button>
+                    <button class="btn btn-default" id="btnSave" onclick="SaveHeader()">บันทึก</button>
                     <button class="btn btn-default" id="btnCancel">ลบ</button>
                 </td>
                 <td style="width:40%;align:right">

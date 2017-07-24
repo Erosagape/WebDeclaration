@@ -53,6 +53,11 @@ namespace JobMvc.DataLayer
             var data = new RFTRC().get(filter);
             return data;
         }
+        public static List<ConsignTo> getNotifyParty(string filter)
+        {
+            var data = new ConsignTo().get(filter);
+            return data;
+        }
     }
     public static class _Dummy
     {
@@ -92,9 +97,14 @@ namespace JobMvc.DataLayer
             });
             return data;
         }
+        public static List<string> getPaymentTerm()
+        {
+            List<string> data = new List<string>() { "N/A", "D/T", "T/T" };
+            return data;
+        }
         public static List<string> getTermofTrade()
         {
-            List<string> data = new List<string>() { "FOB", "CIF" ,"T/T","D/T","EXW" };
+            List<string> data = new List<string>() { "FOB", "CIF", "EXW", "DDU" };
             return data;
         }
         public static List<CurrencyCode> getCurrency()
