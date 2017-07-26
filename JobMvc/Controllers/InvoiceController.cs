@@ -85,13 +85,15 @@ namespace JobMvc.Controllers
         }
         public ActionResult saveHeader(DecInvoice_Header data)
         {
-            string json = JsonConvert.SerializeObject(data);
-            return Content(json, "appliction/json", System.Text.Encoding.UTF8);
+            //string json = JsonConvert.SerializeObject(data);
+            string json = data.save();
+            return Content(json, "application/text", System.Text.Encoding.UTF8);
         }
         public ActionResult saveDetail(DecInvoice_Detail data)
         {
-            string json = JsonConvert.SerializeObject(data);
-            return Content(json, "appliction/json", System.Text.Encoding.UTF8);
+            //string json = JsonConvert.SerializeObject(data);
+            string json = data.save();
+            return Content(json, "application/text", System.Text.Encoding.UTF8);
         }
     }
 }

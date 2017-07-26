@@ -490,7 +490,7 @@
                     NotifyPartyAddr : '',
                     NotifyPartyEmail : '',
                     DestinationCountry : '',
-                    DepartureDate : '1900-01-01',
+                    DepartureDate : '',
                     IncoTerms : '',
                     InvCurrency : '',
                     InvCurRate : 1,
@@ -539,11 +539,11 @@
                     AvgExpOther : '',
                     TotalExpOtherTHB : 0,
                     AvgExp2Free : 0,
-                    RecDate : '1900-01-01',
+                    RecDate : '1899-12-30',
                     RecTime : '00:00:00',
                     RecByUser : '',
                     UIDTransmit : '',
-                    SignDate : '1900-01-01',
+                    SignDate : '1899-12-30',
                     SignTime : '00:00:00',
                     SignBy : '',
                     FileToSend : '',
@@ -1670,20 +1670,71 @@
 			}
 			function SaveHeader()
 			{
+			    if(checkHeader()==false)
+                {
+			        return;
+			    }
 			    var data=GetDataHeader();
 			    $.post(urlSaveH,data)
                 .done(function (response) {
-                    alert(JSON.stringify(response));
-            });
+			        var n=response.indexOf('|')
+			        if(n>0)
+					{
+			            var ref=response.split('|')[0].split(' ')[1];
+			            var inv=response.split('|')[1].split(' ')[0];
+                        alert("Save '" + ref +"' inv='" + inv +"' Successfully");
+			            clearForm();
+					}
+					else
+					{
+			            alert(response);
+					}
+
+                });
 			}
             function SaveDetail()
 			{
+			    if(checkDetail()==false)
+                {
+                    return;
+                }
 			    var data=GetDataDetail();
 	            $.post(urlSaveD,data)
 	                .done(function (response) {
-	                    alert(JSON.stringify(response));
+	                    alert(response);
+                        var inv = $('#txtInvNo').val();
+                        var ref = $('#selRefNo').val();
+			            loadDataDetail(ref,inv);
 	            });
 			}
+            function checkHeader()
+			{
+			    if($('#selBranch').val()=="")
+			    {
+			        alert('Please select branch first');
+			        return false;
+			    }
+			    return true;
+			}
+            function checkDetail()
+            {
+                if($('#selBranch').val()=="")
+                {
+                    alert('Please select branch first');
+			        return false;
+                }
+                if($('#selRefNO').val()==""||$('#selInvNO').val()=="")
+                {
+                    alert('Please save header first');
+                    return false;
+                }
+                if($('#txtItemNO').val()=="")
+                {
+                    alert('Please enter Item No first');
+                    return false;
+                }
+                return true;
+            }
 			//ฟังก์ชั่นปริ้นฟอร์ม
             function showForm()
             {

@@ -229,13 +229,41 @@ namespace JobMvc
             }
             return rows;
         }
+        public void add()
+        {
+            using (Connection cn = new Connection("cdp1"))
+            {
+                if (this.RefNO == null)
+                {
+                    var rd = cn.getDataReader("select max(RefNO) as t from " + tbname);
+                    while (rd.Read())
+                    {
+                        this.RefNO = rd[0].ToString().Substring(0, 4) + (Convert.ToInt32(rd[0].ToString().Substring(5)) + 1).ToString("000000000");
+                    }
+                    rd.Close();
+                }
+                if (this.InvNO == null)
+                {
+                    var rd = cn.getDataReader("select max(InvNO) as t from " + tbname + " where InvNO Like 'INV-%'");
+                    while (rd.Read())
+                    {
+                        this.InvNO = rd[0].ToString().Substring(0, 4) + (Convert.ToInt32(rd[0].ToString().Substring(5)) + 1).ToString("000000000");
+                    }
+                    rd.Close();
+                }
 
+            }
+        }
         public string save()
         {
             using (Connection cn = new Connection("cdp1"))
             {
                 try
                 {
+                    if (this.RefNO == null || this.InvNO == null)
+                    {
+                        this.add();
+                    }
                     string sql = string.Format("select * from " + tbname + " where RefNO='{0}'", this.RefNO);
                     using (MysqlDataTable dt = new MysqlDataTable(sql, cn.getConnection()))
                     {
@@ -244,10 +272,6 @@ namespace JobMvc
                         if (tb.Rows.Count > 0)
                         {
                             dr = tb.Rows[0];
-                        }
-                        else
-                        {
-                            dr["oid"] = 0;
                         }
                         dr["BranchCode"] = this.BranchCode;
                         dr["RefNO"] = this.RefNO;
@@ -356,7 +380,7 @@ namespace JobMvc
                         if (dr.RowState.Equals(System.Data.DataRowState.Detached)) tb.Rows.Add(dr);
                         dt.update();
                     }
-                    return "Save Successfully";
+                    return "Save " + this.RefNO + "|" + this.InvNO + " Successfully";
                 }
                 catch (Exception e)
                 {
@@ -368,7 +392,7 @@ namespace JobMvc
         public string delete(string oid)
         {
             string msg = "Delete Success";
-            using (Connection cn = new Connection())
+            using (Connection cn = new Connection("cdp1"))
             {
                 if (cn.ExecuteSQL(string.Format("delete from " + tbname + " where RefNO='{0}'", oid)) == false)
                 {
