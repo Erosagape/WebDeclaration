@@ -56,7 +56,7 @@
                 loadCompany();
                 loadConsignee();
 			    loadNotifyParty();
-                loadInvList();
+                loadInvList("","");
                 loadIncoTerm();
 			    loadPaymentTerm();
                 loadCurrencys();
@@ -206,15 +206,23 @@
                     }
                 });
             }
-            function loadInvList()
+            function loadInvList(r,i)
             {
                 $.get(docPath)
                 .done(function(data){
                     DocList=data;
                     if(DocList.length>0)
                     {
-                        loadRefNo();
+                        loadRefNo(DocList);
                         loadInvNo(DocList);
+			            if(r!=""){
+			                $('#selRefNo').val(r);
+			                filterInv();
+			            }
+			            if(i!=""){
+			                $('#selInvNo').val(i);
+			                $('#txtInvNo').val(i);
+			            }
                     }
                 });
             }
@@ -409,14 +417,14 @@
                     }
                 });
             }
-            function loadRefNo()
+            function loadRefNo(docList)
             {
                 $('#selRefNo').empty();
                 $('#selRefNo').append($('<option>',{value:""}).text(""));
-                for(var i=0;i< DocList.length;i++)
+                for(var i=0;i< docList.length;i++)
                 {
-                    $('#selRefNo').append($('<option>', { value:DocList[i].RefNO} )
-                        .text(DocList[i].RefNO));
+                    $('#selRefNo').append($('<option>', { value:docList[i].RefNO} )
+                        .text(docList[i].RefNO));
                 }
             }
             function loadInvNo(docList)
@@ -659,7 +667,7 @@
             }
             function clearForm()
             {
-                loadInvList();
+                loadInvList("","");
     			currentDoc = GetStruct_DecInvoice_Header();
 
     			$('#txtDecNo').val('');
@@ -1149,62 +1157,71 @@
                 $('#modalTariffSeq').modal('show');
             }
             function searchInv() {
-                $('#tbInv').DataTable({
-                    data: DocList,
-                    selected: true, //ให้สามารถเลือกแถวได้
-                    columns: [ //กำหนด property ของ header column
-                        { data: null ,title:"#"},
-                        { data: "RefNO", title: "Ref No" },
-                        { data: "InvNO", title: "Inv No" },
-                        { data: null, title: "Inv Date"},
-                        { data: null, title: "Inv Owner"},
-                        { data: "CmpTaxNumber", title:"Tax Number"},
-                        { data: "BuyerName", title:"Buyer name"}
-                    ],
-                    "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
-                        {
-                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
-                            "data": null,
-                            "render": function (data, type, full, meta) {
-                                var html = "<button class='btn btn-warning'>Select</button>";
-                                return html;
-                            }
-                        },
-                        {
-                            "targets": 3, //column ที่ 3
-                            "data": null,
-                            "render": function (data, type, full, meta) {
-                                var html=JSDate(data.InvDate);
-                                return html;
-                            }
-                        },
-                        {
-                            "targets": 4, //column ที่ 4
-                            "data": null,
-                            "render": function (data, type, full, meta) {
-                                var html=data.CmpCode +' / '+ data.CmpBranch;
-                                return html;
-                            }
-                        }
-                    ],
-                    destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
-                });
-                $('#tbInv tbody').on('click', 'tr', function () {
-                    $('#tbInv tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
-                    $(this).addClass('selected'); //select row ใหม่
-                });
-                $('#tbInv tbody').on('click', 'button', function () {
-                    var dt = getRowData('#tbInv', this);
+			     $.get(docPath)
+                .done(function(data){
+                    DocList=data;
+                    if(DocList.length>0)
+                    {
+                        loadRefNo(DocList);
+                        loadInvNo(DocList);
+		                $('#tbInv').DataTable({
+		                    data: DocList,
+		                    selected: true, //ให้สามารถเลือกแถวได้
+		                    columns: [ //กำหนด property ของ header column
+		                        { data: null ,title:"#"},
+		                        { data: "RefNO", title: "Ref No" },
+		                        { data: "InvNO", title: "Inv No" },
+		                        { data: null, title: "Inv Date"},
+		                        { data: null, title: "Inv Owner"},
+		                        { data: "CmpTaxNumber", title:"Tax Number"},
+		                        { data: "BuyerName", title:"Buyer name"}
+		                    ],
+		                    "columnDefs": [ //กำหนด control เพิ่มเติมในแต่ละแถว
+		                        {
+		                            "targets": 0, //column ที่ 0 เป็นหมายเลขแถว
+		                            "data": null,
+		                            "render": function (data, type, full, meta) {
+		                                var html = "<button class='btn btn-warning'>Select</button>";
+		                                return html;
+		                            }
+		                        },
+		                        {
+		                            "targets": 3, //column ที่ 3
+		                            "data": null,
+		                            "render": function (data, type, full, meta) {
+		                                var html=JSDate(data.InvDate);
+		                                return html;
+		                            }
+		                        },
+		                        {
+		                            "targets": 4, //column ที่ 4
+		                            "data": null,
+		                            "render": function (data, type, full, meta) {
+		                                var html=data.CmpCode +' / '+ data.CmpBranch;
+		                                return html;
+		                            }
+		                        }
+		                    ],
+		                    destroy: true //ให้ล้างข้อมูลใหม่ทุกครั้งที่ reload page
+		                });
+		                $('#tbInv tbody').on('click', 'tr', function () {
+		                    $('#tbInv tbody tr.selected').removeClass('selected'); //ล้างทุก row ที่มีการ select ก่อน
+		                    $(this).addClass('selected'); //select row ใหม่
+		                });
+		                $('#tbInv tbody').on('click', 'button', function () {
+		                    var dt = getRowData('#tbInv', this);
 
-                    $('#selBranch').val(dt.BranchCode);
-                    $('#selRefNo').val(dt.RefNO);
-                    filterInv();
-                    $('#selInvNo').val(dt.InvNO);
+		                    $('#selBranch').val(dt.BranchCode);
+		                    $('#selRefNo').val(dt.RefNO);
+		                    filterInv();
+		                    $('#selInvNo').val(dt.InvNO);
 
-                    loadData();
-                    $('#modalInv').modal('hide');
+		                    loadData();
+		                    $('#modalInv').modal('hide');
+		                });
+		                $('#modalInv').modal('show');
+                    }
                 });
-                $('#modalInv').modal('show');
             }
             //ฟังก์ชั่นสำหรับการโหลดข้อมูล
             function filterInv()
@@ -1230,6 +1247,7 @@
             function loadHeader(dt)
             {
 			    currentDoc=dt;
+                $('#selBranch').val(dt.BranchCode);
                 $('#txtInvNo').val(dt.InvNO);
                 $('#txtDecNo').val(dt.TrackingNO);
                 $('#txtInvDate').val(JSDate(dt.InvDate));
@@ -1682,8 +1700,10 @@
 					{
 			            var ref=response.split('|')[0].split(' ')[1];
 			            var inv=response.split('|')[1].split(' ')[0];
+			            loadInvList(ref,inv);
+
                         alert("Save '" + ref +"' inv='" + inv +"' Successfully");
-			            clearForm();
+			            //clearForm();
 					}
 					else
 					{
